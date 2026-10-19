@@ -12,9 +12,10 @@
     "docs:check": "node scripts/docs.mjs --check",
     "docs:impact": "node scripts/docs-impact.mjs",
     "public:check": "node scripts/check-publication.mjs",
-    "check": "npm run format:check && npm run docs:check && npm run public:check && npm test && npm run build",
+    "check": "npm run format:check && npm run docs:check && npm run public:check && npm test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "pretest": "npm run build"
   },
   "dependencies": {
     "express": "^5.1.0",

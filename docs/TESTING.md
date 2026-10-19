@@ -6,7 +6,7 @@ npm run docs:generate
 npm run check
 ```
 
-`npm test` runs Node's built-in test runner. Tests create isolated temporary databases and servers; they must not point at a production database. Fixtures use fictional identities and amounts.
+`npm test` builds the production assets first, then runs Node's built-in test runner. The HTTP security checks exercise real static routes, so this also works on a clean checkout without an existing `dist/` directory. Tests create isolated temporary databases and servers; they must not point at a production database. Fixtures use fictional identities and amounts.
 
 ## Automated coverage
 
