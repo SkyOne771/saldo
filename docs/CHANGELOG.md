@@ -7,6 +7,10 @@
 - Added generated code references, documentation-impact checks, publication checks and CI.
 - Generalised systemd/reverse-proxy examples and retained site-specific settings outside source control.
 
+## License
+
+- Released the public project under the MIT License; package metadata and README now match the license file. Third-party dependencies retain their own license terms.
+
 ## CI clean-checkout correction
 
 - Build production assets before the test runner so static-route security tests pass on a fresh clone as well as an existing workspace.
