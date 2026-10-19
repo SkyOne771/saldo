@@ -86,4 +86,4 @@ Use this wording as a factual starting point for a résumé. The repository demo
 
 ## License
 
-See [LICENSE](LICENSE) for the current terms. All sample identities and figures in the public source and screenshot are fictional. Private account data and deployment credentials are excluded from the repository.
+Licensed under the [MIT License](LICENSE), permitting reuse with the copyright and license notice retained. All sample identities and figures in the public source and screenshot are fictional. Private account data and deployment credentials are excluded from the repository.
