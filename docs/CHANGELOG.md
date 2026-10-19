@@ -7,6 +7,10 @@
 - Added generated code references, documentation-impact checks, publication checks and CI.
 - Generalised systemd/reverse-proxy examples and retained site-specific settings outside source control.
 
+## CI clean-checkout correction
+
+- Build production assets before the test runner so static-route security tests pass on a fresh clone as well as an existing workspace.
+
 ## Current application baseline
 
 - Overview combines monthly cash flow and extra spending; no duplicate Cash flow navigation tab.

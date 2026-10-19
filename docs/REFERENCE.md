@@ -94,6 +94,7 @@ Each theme supports light, dark and system appearance.
 | `npm run docs:check` | `node scripts/docs.mjs --check` |
 | `npm run docs:impact` | `node scripts/docs-impact.mjs` |
 | `npm run public:check` | `node scripts/check-publication.mjs` |
-| `npm run check` | `npm run format:check && npm run docs:check && npm run public:check && npm test && npm run build` |
+| `npm run check` | `npm run format:check && npm run docs:check && npm run public:check && npm test` |
 | `npm run format` | `prettier --write .` |
 | `npm run format:check` | `prettier --check .` |
+| `npm run pretest` | `npm run build` |
