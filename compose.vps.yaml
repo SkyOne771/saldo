@@ -1,0 +1,22 @@
+services:
+  saldo:
+    environment:
+      COOKIE_SECURE: 'true'
+      APP_ORIGIN: https://${SALDO_DOMAIN:?Set SALDO_DOMAIN}
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      SALDO_DOMAIN: ${SALDO_DOMAIN:?Set SALDO_DOMAIN to your domain}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - saldo
+volumes:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,24 @@
+services:
+  saldo:
+    build: .
+    restart: unless-stopped
+    mem_limit: 512m
+    pids_limit: 64
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: [/tmp]
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      NODE_ENV: production
+      DEMO_MODE: 'false'
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      REGISTRATION_MODE: invite
+      MAX_ACCOUNTS: ${MAX_ACCOUNTS:-100}
+      APP_ORIGIN: ${APP_ORIGIN:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      - saldo-data:/app/data
+volumes:
+  saldo-data:

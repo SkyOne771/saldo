@@ -1,0 +1,4 @@
+{$SALDO_DOMAIN} {
+  encode gzip
+  reverse_proxy saldo:3000
+}

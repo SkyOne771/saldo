@@ -1,0 +1,42 @@
+{
+  "name": "saldo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "vite build",
+    "start": "NODE_ENV=production node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "docs:generate": "node scripts/docs.mjs --write",
+    "docs:check": "node scripts/docs.mjs --check",
+    "docs:impact": "node scripts/docs-impact.mjs",
+    "public:check": "node scripts/check-publication.mjs",
+    "check": "npm run format:check && npm run docs:check && npm run public:check && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "vite": "^7.0.0"
+  },
+  "description": "Self-hosted personal finance dashboard with shared expenses, monthly history and debt tracking.",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SkyOne771/saldo.git"
+  },
+  "homepage": "https://github.com/SkyOne771/saldo",
+  "bugs": {
+    "url": "https://github.com/SkyOne771/saldo/issues"
+  },
+  "license": "UNLICENSED"
+}

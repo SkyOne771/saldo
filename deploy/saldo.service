@@ -1,0 +1,46 @@
+[Unit]
+Description=Saldo personal finance
+After=network.target
+
+[Service]
+Type=simple
+User=saldo
+Group=saldo
+WorkingDirectory=/opt/saldo/current
+Environment=NODE_ENV=production
+Environment=DEMO_MODE=false
+Environment=REGISTRATION_MODE=invite
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=DATA_DIR=/var/lib/saldo
+Environment=COOKIE_SECURE=true
+Environment=COOKIE_PATH=/
+EnvironmentFile=-/etc/saldo.env
+ExecStart=/opt/saldo-node/bin/node server.mjs
+Restart=on-failure
+RestartSec=3
+StateDirectory=saldo
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+TasksMax=64
+CPUQuota=100%
+CPUWeight=50
+MemoryHigh=384M
+MemoryMax=512M
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

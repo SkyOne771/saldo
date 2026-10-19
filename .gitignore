@@ -1,0 +1,17 @@
+node_modules/
+dist/
+data/
+.env
+*.sqlite*
+.local/
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+coverage/
+playwright-report/
+test-results/
+.DS_Store
