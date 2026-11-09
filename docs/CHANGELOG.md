@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-09 — Task status colours
+
+- To do tasks use the red status colour in the classic palette, matching green Done and amber In progress. Overview badges and task-card accents use the same mapping. Other palettes retain their configured status colours.
+
 ## 2026-10-19 — Public portfolio preparation
 
 - Added a public README, architecture, user, deployment and testing guides.

@@ -306,7 +306,7 @@ export const statusClass = (status) =>
     'Due today': 'pending',
     Upcoming: 'upcoming',
     Scheduled: 'neutral',
-    'To do': 'neutral',
+    'To do': 'overdue',
     'In progress': 'progress-badge',
     Done: 'paid',
   })[status] || 'neutral';

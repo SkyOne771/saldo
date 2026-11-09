@@ -579,18 +579,7 @@ function App() {
           <b className={task.status === 'Done' ? 'strike' : ''}>{task.name}</b>
           <span>{task.category}</span>
         </div>
-        <span
-          className={
-            'badge ' +
-            (task.status === 'Done'
-              ? 'paid'
-              : task.status === 'In progress'
-                ? 'progress-badge'
-                : 'neutral')
-          }
-        >
-          {task.status}
-        </span>
+        <span className={'badge ' + statusClass(task.status)}>{task.status}</span>
         <button
           className="icon-btn edit"
           title={'Edit ' + task.name}
@@ -1420,7 +1409,7 @@ function App() {
                   <div className="status-preview">
                     <span className="badge paid">✓ Paid / Done</span>
                     <span className="badge pending">◷ Due / In progress</span>
-                    <span className="badge overdue">! Overdue</span>
+                    <span className="badge overdue">! Overdue / To do</span>
                   </div>
                 </fieldset>
               </section>
