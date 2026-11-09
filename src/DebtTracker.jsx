@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Settings, Check } from 'lucide-react';
-import { trackerSettings, trackerDefaults } from './model.mjs';
+import { trackerSettings, trackerDefaults, debtTrackerProgress } from './model.mjs';
 import { themes, appearance } from './appearance.mjs';
 const number = (n) => new Intl.NumberFormat('en-PL', { maximumFractionDigits: 2 }).format(n);
 const palettes = {
@@ -9,13 +9,14 @@ const palettes = {
   Sunset: ['#e29a50', '#845e88', '#ffd166'],
   Contrast: ['#008854', '#777777', '#9456e8'],
 };
-export default function DebtTracker({ profile, original, paidOff, state, mutate, busy }) {
+export default function DebtTracker({ profile, original, balance, state, mutate, busy }) {
   const settings = trackerSettings(profile.tracker),
     [editing, setEditing] = useState(false),
     [draft, setDraft] = useState(settings);
   const c = editing ? draft : settings,
-    step = Math.max(1, c.step, Math.ceil(original / 1000)),
-    count = Math.ceil(original / step);
+    progress = debtTrackerProgress(original, balance, c),
+    { step, bricks, manual } = progress,
+    count = bricks.length;
   return (
     <section className="panel debt-tracker">
       <div className="panel-heading">
@@ -26,8 +27,8 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
             {step !== c.step
               ? 'Milestones are enlarged to keep the grid within 1,000 squares. '
               : ''}
-            Colours update automatically from your total debt and repayments, including partial
-            squares. ✓ Paid · outlined = next milestone.
+            Brick colours match the remaining balance below. Partial bricks represent their exact
+            amount. ✓ Paid · outlined = next milestone.
           </p>
         </div>
         <button
@@ -40,6 +41,48 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
         >
           <Settings size={15} /> Customize tracker
         </button>
+      </div>
+      <div className="tracker-balance-summary" aria-live="polite">
+        <div>
+          <span>
+            {manual ? 'Tracker remaining · manual override' : 'Remaining debt · automatic'}
+          </span>
+          <strong>{number(progress.remaining)} zł</strong>
+          <small>
+            {number(Math.floor(progress.remaining / step))} × {number(step)} zł
+            {progress.remaining % step > 0
+              ? ` + ${number(progress.remaining % step)} zł partial brick`
+              : ''}
+            {editing ? ' · Preview' : ''}
+          </small>
+        </div>
+        {manual ? (
+          <div>
+            <p>
+              Debt balance: {number(balance)} zł. Automatic updates are paused for this tracker.
+            </p>
+            <button
+              className="secondary"
+              disabled={busy}
+              onClick={async () => {
+                if (editing) {
+                  setDraft({ ...draft, remainingOverride: null });
+                  return;
+                }
+                await mutate((s) => {
+                  const p = s.profiles.find((p) => p.id === profile.id);
+                  p.tracker = { ...trackerSettings(p.tracker), remainingOverride: null };
+                }, 'Tracker follows debt balance');
+              }}
+            >
+              Return to automatic
+            </button>
+          </div>
+        ) : (
+          <p>
+            Linked to your debts. Repayments and balance edits update these bricks automatically.
+          </p>
+        )}
       </div>
       {editing && (
         <form
@@ -54,6 +97,43 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
               setEditing(false);
           }}
         >
+          <label>
+            Balance source
+            <select
+              aria-label="Tracker balance source"
+              value={draft.remainingOverride == null ? 'automatic' : 'manual'}
+              onChange={(e) =>
+                setDraft({
+                  ...draft,
+                  remainingOverride: e.target.value === 'manual' ? balance : null,
+                })
+              }
+            >
+              <option value="automatic">Automatic · linked to debts</option>
+              <option value="manual">Manual override</option>
+            </select>
+          </label>
+          {draft.remainingOverride != null && (
+            <label>
+              Tracker remaining debt (zł)
+              <input
+                aria-label="Tracker remaining debt"
+                type="number"
+                min="0"
+                max="1000000000000"
+                step="0.01"
+                required
+                value={draft.remainingOverride}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    remainingOverride: e.target.value === '' ? '' : +e.target.value,
+                  })
+                }
+              />
+              <small>Changes only this tracker; your debt records stay unchanged.</small>
+            </label>
+          )}
           <label>
             Colour preset
             <select
@@ -149,22 +229,18 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
           '--current': c.current,
         }}
       >
-        {Array.from({ length: count }, (_, i) => {
-          const amount = Math.min((i + 1) * step, original),
-            done = paidOff >= amount,
-            next = !done && paidOff >= i * step,
-            squareAmount = amount - i * step,
-            paidAmount = Math.max(0, Math.min(squareAmount, paidOff - i * step)),
-            fill = (paidAmount / squareAmount) * 100;
+        {bricks.map(({ amount, size, paid, remaining, done, next, fill, width }, i) => {
+          const description = `${number(amount)} zł milestone · ${number(size)} zł brick: ${number(paid)} zł paid, ${number(remaining)} zł remaining`;
           return (
             <div
               key={i}
               className={done ? 'done' : next ? 'next' : ''}
               style={{
+                width: `${width}%`,
                 background: `linear-gradient(to right, ${c.paid} ${fill}%, ${c.remaining} ${fill}%)`,
               }}
-              title={`${number(amount)} zł · ${done ? 'Paid' : next ? 'Next milestone' : 'Remaining'}`}
-              aria-label={`${number(amount)} zł: ${done ? 'Paid' : next ? 'Next milestone' : 'Remaining'}`}
+              title={description}
+              aria-label={description}
             >
               {done && <Check size={11} />}{' '}
               {c.labels === 'number'
@@ -182,10 +258,10 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
       <div className="tracker-legend">
         <span>✓ Paid</span>
         <span>◇ Next milestone</span>
-        <span>{number(paidOff)} zł paid off</span>
-        <span>{number(Math.max(0, original - paidOff))} zł remaining</span>
+        <span>{number(progress.paid)} zł paid off</span>
+        <span>{number(progress.remaining)} zł remaining</span>
         <span>
-          {count} squares calculated from {number(original)} zł starting debt
+          {count} squares calculated from {number(progress.total)} zł tracker total
         </span>
       </div>
       <details className="tracker-app-theme">

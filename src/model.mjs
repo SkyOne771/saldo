@@ -552,11 +552,48 @@ export function validTracker(v) {
     v.columns >= 5 &&
     v.columns <= 40 &&
     ['number', 'amount', 'none'].includes(v.labels) &&
+    (v.remainingOverride === undefined ||
+      v.remainingOverride === null ||
+      validMoney(v.remainingOverride)) &&
     ['paid', 'remaining', 'current'].every((k) => /^#[0-9a-f]{6}$/i.test(v[k]))
   );
 }
 export function trackerSettings(value) {
   return validTracker(value) ? value : { ...trackerDefaults };
+}
+
+// Use integer cents so the coloured portions always add up to the displayed balance.
+export function debtTrackerProgress(original, balance, preferences) {
+  const settings = trackerSettings(preferences),
+    manual = settings.remainingOverride !== undefined && settings.remainingOverride !== null,
+    remainingCents = Math.max(0, Math.round((manual ? settings.remainingOverride : balance) * 100)),
+    totalCents = Math.max(remainingCents, Math.round(original * 100)),
+    paidCents = totalCents - remainingCents,
+    step = Math.max(1, settings.step, Math.ceil(totalCents / 100 / 1000)),
+    stepCents = step * 100;
+  const bricks = Array.from({ length: Math.ceil(totalCents / stepCents) }, (_, i) => {
+    const start = i * stepCents,
+      size = Math.min(stepCents, totalCents - start),
+      paid = Math.max(0, Math.min(size, paidCents - start));
+    return {
+      amount: (start + size) / 100,
+      size: size / 100,
+      paid: paid / 100,
+      remaining: (size - paid) / 100,
+      fill: (paid / size) * 100,
+      width: (size / stepCents) * 100,
+      done: paid === size,
+      next: paid < size && paidCents >= start,
+    };
+  });
+  return {
+    manual,
+    step,
+    total: totalCents / 100,
+    remaining: remainingCents / 100,
+    paid: paidCents / 100,
+    bricks,
+  };
 }
 
 // List membership is independent of financial ownership and the 50/50 split.
