@@ -2405,7 +2405,7 @@ footer,
   border-left: 3px solid var(--paid-fg);
 }
 .task-card.task-to-do {
-  border-left: 3px solid var(--text-muted);
+  border-left: 3px solid var(--overdue-fg);
 }
 .status-preview {
   display: flex;

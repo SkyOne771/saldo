@@ -32,7 +32,7 @@ The debt grid has its own adjacent controls for colours, milestone amount, colum
 
 ## Other records and recovery
 
-Extra expenses can be edited, moved between months or deleted with confirmation. Tasks support To do, In progress and Done. Deleting a profile transfers its records to another profile; at least one profile must remain.
+Extra expenses can be edited, moved between months or deleted with confirmation. Tasks support To do, In progress and Done. The classic status palette displays these in red, amber and green respectively; Overview badges and task-card accents share the same mapping. Deleting a profile transfers its records to another profile; at least one profile must remain.
 
 A conflicting save keeps the draft and opens a recovery screen. Review overlapping values, save combined changes or download the draft. This does not make financial changes silently.
 
