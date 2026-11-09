@@ -291,11 +291,11 @@ export function setBillSharing(state, ids, profile, shared, partnerId, month) {
     }
   }
 }
-export function billStatus(bill, month, today = new Date()) {
+export function billStatus(bill, month, today = new Date(), profile) {
   if (bill.paid?.[month]) return 'Paid';
   if (bill.frequency === 'Yearly' && bill.dueMonth && bill.dueMonth !== Number(month.slice(5)))
     return 'Scheduled';
-  const due = billDueDate(bill, month),
+  const due = billDueDate(bill, month, profile),
     now = `${monthKey(today)}-${String(today.getDate()).padStart(2, '0')}`;
   return due < now ? 'Overdue' : due === now ? 'Due today' : 'Upcoming';
 }
@@ -359,6 +359,11 @@ export function validState(state) {
       Number.isInteger(b.day) &&
       b.day >= 1 &&
       b.day <= 31 &&
+      (b.dueDays === undefined ||
+        (obj(b.dueDays) &&
+          Object.entries(b.dueDays).every(
+            ([id, day]) => ids.has(id) && Number.isInteger(day) && day >= 1 && day <= 31,
+          ))) &&
       typeof b.shared === 'boolean' &&
       (!b.shared || state.profiles.length > 1) &&
       str(b.category) &&
@@ -525,6 +530,11 @@ export function deleteProfile(state, id, target) {
           delete b.partnerId;
         } else b.partnerId = nextPartner;
       } else delete b.partnerId;
+      if (b.dueDays) {
+        if (b.dueDays[id] !== undefined && b.dueDays[target] === undefined)
+          b.dueDays[target] = b.dueDays[id];
+        delete b.dueDays[id];
+      }
       if (b.hiddenViews) delete b.hiddenViews[id];
       if (b.payer === id) b.payer = target;
       if (b.payers)
@@ -669,6 +679,7 @@ const termKeys = [
   'name',
   'amount',
   'day',
+  'dueDays',
   'shared',
   'category',
   'frequency',
@@ -741,10 +752,13 @@ export function setBillPaid(state, id, month, paid) {
   b.paid[month] = paid;
   if (paid) freezePaidBill(state, b);
 }
-export function billDueDate(bill, month) {
+export function billDueDay(bill, profile) {
+  return bill.dueDays && Object.hasOwn(bill.dueDays, profile) ? bill.dueDays[profile] : bill.day;
+}
+export function billDueDate(bill, month, profile) {
   const [y, m] = month.split('-').map(Number),
     last = new Date(y, m, 0).getDate();
-  return `${month}-${String(Math.min(bill.day, last)).padStart(2, '0')}`;
+  return `${month}-${String(Math.min(billDueDay(bill, profile), last)).padStart(2, '0')}`;
 }
 
 export function visibleTask(task, profile) {

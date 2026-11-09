@@ -68,8 +68,9 @@ export default function BillsPanel({
     .filter(
       (b) =>
         filter === 'All' ||
-        (filter === 'Unpaid' && !['Paid', 'Scheduled'].includes(billStatus(b, month))) ||
-        filter === billStatus(b, month),
+        (filter === 'Unpaid' &&
+          !['Paid', 'Scheduled'].includes(billStatus(b, month, new Date(), profile))) ||
+        filter === billStatus(b, month, new Date(), profile),
     )
     .sort((a, b) =>
       sort === 'Name'
@@ -78,12 +79,15 @@ export default function BillsPanel({
           ? b.amount - a.amount
           : sort === 'Your share'
             ? billShare(state, b, profile) - billShare(state, a, profile)
-            : a.day - b.day || a.name.localeCompare(b.name),
+            : billDueDate(a, month, profile).localeCompare(billDueDate(b, month, profile)) ||
+              a.name.localeCompare(b.name),
     );
   const picked = shown.filter((b) => selected.includes(b.id)),
     unpaid =
       scope === 'Active'
-        ? shown.filter((b) => !['Paid', 'Scheduled'].includes(billStatus(b, month)))
+        ? shown.filter(
+            (b) => !['Paid', 'Scheduled'].includes(billStatus(b, month, new Date(), profile)),
+          )
         : [],
     allSelected = shown.length > 0 && picked.length === shown.length;
   const changeView = async (ids, show) => {
@@ -287,7 +291,7 @@ export default function BillsPanel({
         </div>
       )}
       {shown.map((b) => {
-        const status = billStatus(b, month),
+        const status = billStatus(b, month, new Date(), profile),
           partner = billParticipants(state, b).find((id) => id !== profile);
         return (
           <article
@@ -321,7 +325,7 @@ export default function BillsPanel({
                 {b.frequency === 'Yearly' && b.dueMonth
                   ? ` · ${new Date(2000, b.dueMonth - 1, 1).toLocaleDateString('en', { month: 'short' })}`
                   : ''}{' '}
-                · due {+billDueDate(b, month).slice(-2)}
+                · due {+billDueDate(b, month, profile).slice(-2)}
               </span>
               <span className="split-label">
                 {b.shared
@@ -601,7 +605,7 @@ function BillTransfer({ sharedPage, state, profile, bills, busy, onClose, onSave
                 <b>{b.name}</b>
                 <small>
                   {b.shared ? 'Restore · keeps 50/50' : 'Start 50/50 split'} · {b.frequency} · due{' '}
-                  {+billDueDate(b, month).slice(-2)}
+                  {+billDueDate(b, month, profile).slice(-2)}
                 </small>
               </span>
               <b>{money(b.amount)} zł</b>
