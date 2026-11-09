@@ -533,15 +533,17 @@ function App() {
               </span>
             </div>
             <span className="due">
-              {date.toLocaleDateString('en', { month: 'short' })} {+billDueDate(b, month).slice(-2)}
+              {date.toLocaleDateString('en', { month: 'short' })}{' '}
+              {+billDueDate(b, month, pid).slice(-2)}
             </span>
             <b className="bill-amount">{currency(b.amount)}</b>
             <button
-              disabled={busy || billStatus(b, month) === 'Scheduled'}
+              disabled={busy || billStatus(b, month, new Date(), pid) === 'Scheduled'}
               onClick={() => paidToggle(b)}
-              className={'badge status ' + statusClass(billStatus(b, month))}
+              className={'badge status ' + statusClass(billStatus(b, month, new Date(), pid))}
             >
-              {b.paid[month] ? <Check size={12} /> : <Clock size={12} />} {billStatus(b, month)}
+              {b.paid[month] ? <Check size={12} /> : <Clock size={12} />}{' '}
+              {billStatus(b, month, new Date(), pid)}
             </button>
             <button
               className="icon-btn edit"
@@ -1973,6 +1975,9 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
   const [localError, setLocalError] = useState(''),
     [isShared, setIsShared] = useState(!!r.shared),
     [frequency, setFrequency] = useState(r.frequency || 'Monthly'),
+    [billPartner, setBillPartner] = useState(
+      r.partnerId || profiles.find((p) => p.id !== (r.owner || person.id))?.id || '',
+    ),
     [confirmDelete, setConfirmDelete] = useState(!!modal.confirmDelete),
     [transfer, setTransfer] = useState(profiles.find((p) => p.id !== r.id)?.id || '');
   const orphan =
@@ -2010,6 +2015,14 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
         const form = new FormData(e.target),
           data = Object.fromEntries(form);
         if (type === 'task') data.sharedWith = form.getAll('sharedWith');
+        if (type === 'bill') {
+          data.dueDays = {};
+          for (const key of Object.keys(data))
+            if (key.startsWith('dueDay:')) {
+              if (data[key] !== '') data.dueDays[key.slice(7)] = +data[key];
+              delete data[key];
+            }
+        }
         if (data.name && !data.name.trim()) {
           setLocalError('Enter a name.');
           return;
@@ -2072,7 +2085,7 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
             month’s last day fall on that last day.
           </p>
           <div className="form-grid">
-            {field('day', 'Due day (1–31)', 'number', 5, { min: 1, max: 31 })}
+            {field('day', 'Default due day (1–31)', 'number', 5, { min: 1, max: 31 })}
             <label>
               Frequency
               <select
@@ -2114,9 +2127,8 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
               <select
                 name="partnerId"
                 required
-                defaultValue={
-                  r.partnerId || profiles.find((p) => p.id !== (r.owner || person.id))?.id || ''
-                }
+                value={billPartner}
+                onChange={(e) => setBillPartner(e.target.value)}
               >
                 {profiles
                   .filter((p) => p.id !== (r.owner || person.id))
@@ -2127,6 +2139,34 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
                   ))}
               </select>
             </label>
+          )}
+          {isShared && (
+            <fieldset className="task-sharing-fields">
+              <legend>Separate due days</legend>
+              <p className="field-help">
+                Each profile uses its own date for due and overdue labels. Leave blank to use the
+                default day. The bill amount and paid status stay shared.
+              </p>
+              <div className="form-grid">
+                {profiles
+                  .filter((p) => p.id === (r.owner || person.id) || p.id === billPartner)
+                  .map((p) => (
+                    <label key={p.id}>
+                      {p.name} — due day
+                      <input
+                        type="number"
+                        name={`dueDay:${p.id}`}
+                        aria-label={`Due day for ${p.name}`}
+                        min="1"
+                        max="31"
+                        step="1"
+                        placeholder="Use default day"
+                        defaultValue={r.dueDays?.[p.id] ?? ''}
+                      />
+                    </label>
+                  ))}
+              </div>
+            </fieldset>
           )}
           {frequency === 'Yearly' && (
             <label>

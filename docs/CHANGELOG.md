@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-09 — Per-profile bill due days
+
+- Shared bills support individual due-day overrides per profile. Dates, overdue statuses and sorting follow the selected profile while amounts and paid status remain shared.
+- Date overrides follow effective-month edits and paid-history snapshots, with month-end clamping and profile-deletion cleanup.
+
 ## 2026-11-09 — Shared profile tasks
 
 - Added opt-in task sharing between profiles, with one synchronised record, per-task recipients and confirmed bulk sharing.
