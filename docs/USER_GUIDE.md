@@ -53,3 +53,7 @@ Edit a shared bill and use Separate due days to enter each participant’s due d
 Priorities run from **P1 Urgent** (red in the classic palette) through **P2 High** (amber), **P3 Normal** (blue) to **P4 Low** (muted). Each badge includes its number and label, and colours follow the selected status palette. New and older tasks default to P3 until you change them. Set the priority in the editor or directly on a task card; shared profiles see the same value.
 
 Use the to-do toolbar to combine a priority filter, name/category search and Shared/Private visibility. Sort by priority (P1 first), name or original order. Column counts reflect the filtered list, and Showing X of Y reports the full total. Clear filters restores the complete list. Adding from a status column uses the selected priority filter for the new task.
+
+### Default payer
+
+For an unpaid bill with no payer saved for that month, Paid by defaults to the active profile. Marking it paid records that payer for everyone, including when marking multiple shown bills paid. Choosing a payer explicitly is shared across profiles and takes precedence over the default. Switching profiles never rewrites paid history or a saved payer choice.

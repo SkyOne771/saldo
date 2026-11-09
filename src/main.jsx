@@ -521,7 +521,7 @@ function App() {
     mutate(
       (s) => {
         const x = s.bills.find((x) => x.id === b.id);
-        setBillPaid(s, x.id, month, !x.paid[month]);
+        setBillPaid(s, x.id, month, !x.paid[month], pid);
       },
       b.paid[month] ? 'Marked as unpaid' : 'Payment marked as paid',
     );
