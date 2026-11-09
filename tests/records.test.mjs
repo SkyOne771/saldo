@@ -9,6 +9,7 @@ import {
   validState,
   trackerSettings,
   trackerDefaults,
+  debtTrackerProgress,
 } from '../src/model.mjs';
 test('repayment corrections and deletion preserve later principal payments', () => {
   const s = seed(),
@@ -68,4 +69,63 @@ test('tracker settings validate untrusted colours and keep new accounts independ
   s.profiles[0].tracker.paid = 'url(https://bad.invalid)';
   assert.equal(validState(s), false);
   assert.deepEqual(trackerSettings(s.profiles[0].tracker), trackerDefaults);
+});
+
+test('automatic debt bricks exactly match current balance through repayment changes', () => {
+  const settings = { ...trackerDefaults, step: 500 };
+  const s = seed(),
+    debt = s.debts[0];
+  const progress = () => debtTrackerProgress(debt.original, debt.balance, settings);
+  const check = () => {
+    const p = progress();
+    assert.equal(
+      Math.round(p.bricks.reduce((sum, b) => sum + b.remaining, 0) * 100),
+      Math.round(debt.balance * 100),
+    );
+    assert.equal(
+      Math.round(p.bricks.reduce((sum, b) => sum + b.paid, 0) * 100),
+      Math.round((debt.original - debt.balance) * 100),
+    );
+    assert.equal(p.manual, false);
+  };
+  check();
+  repay(s, debt.id, 625.37, '2026-11-09');
+  check();
+  updateRepayment(s, s.payments.at(-1).id, 125.11, '2026-11-09');
+  check();
+  deleteRepayment(s, s.payments.at(-1).id);
+  check();
+  debt.balance = 1234.56;
+  check();
+});
+test('partial final brick has exact size, and manual balance remains fixed until cleared', () => {
+  const settings = { ...trackerDefaults, step: 500 };
+  const p = debtTrackerProgress(1250, 625, settings);
+  assert.equal(p.bricks.length, 3);
+  assert.equal(p.bricks[1].fill, 25);
+  assert.equal(p.bricks[2].width, 50);
+  assert.equal(p.bricks[2].remaining, 250);
+  const override = { ...settings, remainingOverride: 300.25 };
+  assert.equal(debtTrackerProgress(1250, 625, override).remaining, 300.25);
+  assert.equal(debtTrackerProgress(1250, 100, override).remaining, 300.25);
+  assert.equal(
+    debtTrackerProgress(1250, 100, { ...override, remainingOverride: null }).remaining,
+    100,
+  );
+  assert.equal(debtTrackerProgress(1250, 100, { ...override, remainingOverride: 0 }).remaining, 0);
+  assert.equal(debtTrackerProgress(0, 0, { ...override, remainingOverride: 300.25 }).total, 300.25);
+  assert.equal(debtTrackerProgress(0, 0, settings).bricks.length, 0);
+  assert.ok(debtTrackerProgress(1e12, 1e12, { ...settings, step: 1 }).bricks.length <= 1000);
+});
+test('tracker remaining overrides reject hostile, negative and fractional-cent values', () => {
+  for (const remainingOverride of [-1, 0.001, '500', Infinity, 1e12 + 1]) {
+    const s = seed();
+    s.profiles[0].tracker = { ...trackerDefaults, remainingOverride };
+    assert.equal(validState(s), false);
+  }
+  for (const remainingOverride of [undefined, null, 0, 123.45]) {
+    const s = seed();
+    s.profiles[0].tracker = { ...trackerDefaults, remainingOverride };
+    assert.ok(validState(s));
+  }
 });

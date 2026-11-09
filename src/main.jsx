@@ -1071,7 +1071,7 @@ function App() {
                 key={pid}
                 profile={person}
                 original={t.original}
-                paidOff={paidOff}
+                balance={t.balance}
                 state={state}
                 mutate={mutate}
                 busy={busy}
@@ -1234,7 +1234,7 @@ function App() {
                 key={pid}
                 profile={person}
                 original={t.original}
-                paidOff={paidOff}
+                balance={t.balance}
                 state={state}
                 mutate={mutate}
                 busy={busy}

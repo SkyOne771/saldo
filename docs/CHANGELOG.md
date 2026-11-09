@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-09 — Debt balance synchronisation
+
+- Tracker balances explicitly follow live debt totals; partial final bricks have proportional widths and exact paid/remaining amounts.
+- Added a per-profile manual tracker balance override and Return to automatic control without changing financial records.
+
 ## 2026-11-09 — Overview bill alignment
 
 - Aligned the Payment heading with bill names and kept due dates, amounts and statuses on shared column tracks. Mobile cards omit the desktop heading row.
