@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-09 — Overview bill alignment
+
+- Aligned the Payment heading with bill names and kept due dates, amounts and statuses on shared column tracks. Mobile cards omit the desktop heading row.
+
 ## 2026-11-09 — Automatic debt grid
 
 - Debt squares now show partial repayments proportionally and display the automatically calculated remaining balance and total grid amount.
