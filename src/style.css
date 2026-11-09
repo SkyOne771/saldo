@@ -3472,3 +3472,63 @@ nav em {
   margin: 18px 0;
   padding: 14px;
 }
+
+.task-filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.task-filter-panel label {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.task-filter-panel label:first-child {
+  flex-grow: 2;
+}
+.task-filter-panel input,
+.task-filter-panel select {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--text);
+}
+.task-filter-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-bottom: 10px;
+}
+.task-card > .task-priority {
+  margin-top: 8px;
+}
+.task-card > div {
+  flex-wrap: wrap;
+}
+.task-priority.priority-1,
+.task-card .task-priority-select.priority-1 {
+  background: var(--overdue-bg);
+  color: var(--overdue-fg);
+}
+.task-priority.priority-2,
+.task-card .task-priority-select.priority-2 {
+  background: var(--due-bg);
+  color: var(--due-fg);
+}
+.task-priority.priority-3,
+.task-card .task-priority-select.priority-3 {
+  background: var(--upcoming-bg);
+  color: var(--upcoming-fg);
+}
+.task-priority.priority-4,
+.task-card .task-priority-select.priority-4 {
+  background: var(--surface-soft);
+  color: var(--text-muted);
+}

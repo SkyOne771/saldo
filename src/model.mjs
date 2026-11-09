@@ -430,6 +430,8 @@ export function validState(state) {
           str(t.name) &&
           str(t.category) &&
           owner(t) &&
+          (t.priority === undefined ||
+            (Number.isInteger(t.priority) && t.priority >= 1 && t.priority <= 4)) &&
           (t.sharedWith === undefined || validTaskRecipients(state, t.sharedWith, t.owner)) &&
           ['To do', 'In progress', 'Done'].includes(t.status),
       )
@@ -785,4 +787,34 @@ function validTaskRecipients(state, recipients, owner) {
     new Set(recipients).size === recipients.length &&
     recipients.every((id) => id !== owner && state.profiles.some((p) => p.id === id))
   );
+}
+
+export const taskPriorities = [
+  { value: 1, label: 'Urgent' },
+  { value: 2, label: 'High' },
+  { value: 3, label: 'Normal' },
+  { value: 4, label: 'Low' },
+];
+export const taskPriority = (task) =>
+  Number.isInteger(task.priority) && task.priority >= 1 && task.priority <= 4 ? task.priority : 3;
+export function filterTasks(
+  tasks,
+  { search = '', priority = 'All', visibility = 'All', sort = 'Priority' } = {},
+) {
+  const query = search.trim().toLocaleLowerCase();
+  return tasks
+    .filter(
+      (task) =>
+        (!query || `${task.name} ${task.category}`.toLocaleLowerCase().includes(query)) &&
+        (priority === 'All' || taskPriority(task) === Number(priority)) &&
+        (visibility === 'All' ||
+          (visibility === 'Shared' ? !!task.sharedWith?.length : !task.sharedWith?.length)),
+    )
+    .sort((a, b) =>
+      sort === 'Name'
+        ? a.name.localeCompare(b.name)
+        : sort === 'Priority'
+          ? taskPriority(a) - taskPriority(b)
+          : 0,
+    );
 }

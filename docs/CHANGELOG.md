@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-09 — Task priorities and filters
+
+- Added P1–P4 task priorities with semantic colours, inline editing and a P3 default for existing tasks.
+- Added priority, visibility and search filters, priority/name/original sorting, filtered counts and clear filters. Shared profiles edit one priority value.
+
 ## 2026-11-09 — Per-profile bill due days
 
 - Shared bills support individual due-day overrides per profile. Dates, overdue statuses and sorting follow the selected profile while amounts and paid status remain shared.

@@ -71,6 +71,9 @@ import {
   setMonthlyIncome,
   visibleTask,
   shareTasks,
+  taskPriorities,
+  taskPriority,
+  filterTasks,
 } from './model.mjs';
 import './style.css';
 const money = (n, dec) =>
@@ -138,6 +141,12 @@ function App() {
     [conflict, setConflict] = useState(null),
     [recoveryCode, setRecoveryCode] = useState(''),
     [shareConfirm, setShareConfirm] = useState(false),
+    [taskFilters, setTaskFilters] = useState({
+      search: '',
+      priority: 'All',
+      visibility: 'All',
+      sort: 'Priority',
+    }),
     [narrow, setNarrow] = useState(() => window.matchMedia('(max-width:650px)').matches);
   const saving = useRef(false);
   useEffect(() => setShareConfirm(false), [profile]);
@@ -461,6 +470,7 @@ function App() {
       .map((b) => billForMonth(state, b, month))
       .filter((b) => visibleBill(state, b, pid)),
     tasks = state.tasks.filter((t) => visibleTask(t, pid)),
+    filteredTasks = filterTasks(tasks, taskFilters),
     paid = bills.filter((b) => b.paid[month]),
     shared = bills.filter((b) => b.shared),
     sharedTotal = shared.reduce(
@@ -612,6 +622,9 @@ function App() {
           <b className={task.status === 'Done' ? 'strike' : ''}>{task.name}</b>
           <span>{task.category}</span>
         </div>
+        <span className={`badge task-priority priority-${taskPriority(task)}`}>
+          P{taskPriority(task)}
+        </span>
         <span className={'badge ' + statusClass(task.status)}>{task.status}</span>
         <button
           className="icon-btn edit"
@@ -1391,6 +1404,73 @@ function App() {
                   </div>
                 )}
               </section>
+              <section className="panel task-filter-panel" aria-label="Task filters">
+                <label>
+                  Search tasks
+                  <input
+                    type="search"
+                    placeholder="Find a task or category…"
+                    value={taskFilters.search}
+                    onChange={(e) => setTaskFilters({ ...taskFilters, search: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Priority
+                  <select
+                    aria-label="Filter tasks by priority"
+                    value={taskFilters.priority}
+                    onChange={(e) => setTaskFilters({ ...taskFilters, priority: e.target.value })}
+                  >
+                    <option value="All">All priorities</option>
+                    {taskPriorities.map((p) => (
+                      <option key={p.value} value={p.value}>
+                        P{p.value} · {p.label} (
+                        {tasks.filter((t) => taskPriority(t) === p.value).length})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Visibility
+                  <select
+                    aria-label="Filter tasks by visibility"
+                    value={taskFilters.visibility}
+                    onChange={(e) => setTaskFilters({ ...taskFilters, visibility: e.target.value })}
+                  >
+                    {['All', 'Shared', 'Private'].map((v) => (
+                      <option key={v}>{v}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Sort
+                  <select
+                    aria-label="Sort tasks"
+                    value={taskFilters.sort}
+                    onChange={(e) => setTaskFilters({ ...taskFilters, sort: e.target.value })}
+                  >
+                    <option value="Priority">Priority · P1 first</option>
+                    <option value="Name">Name</option>
+                    <option value="Original">Original order</option>
+                  </select>
+                </label>
+                <span className="task-filter-count" aria-live="polite">
+                  Showing {filteredTasks.length} of {tasks.length}
+                </span>
+                <button
+                  className="text-btn"
+                  onClick={() =>
+                    setTaskFilters({
+                      search: '',
+                      priority: 'All',
+                      visibility: 'All',
+                      sort: 'Priority',
+                    })
+                  }
+                >
+                  Clear filters
+                </button>
+              </section>
               <div className="kanban">
                 {['To do', 'In progress', 'Done'].map((status) => (
                   <section className="panel" key={status}>
@@ -1398,11 +1478,11 @@ function App() {
                       title={status}
                       right={
                         <span className="badge neutral">
-                          {tasks.filter((t) => t.status === status).length}
+                          {filteredTasks.filter((t) => t.status === status).length}
                         </span>
                       }
                     />
-                    {tasks
+                    {filteredTasks
                       .filter((t) => t.status === status)
                       .map((task) => (
                         <div
@@ -1414,6 +1494,9 @@ function App() {
                           <span className={'badge ' + statusClass(task.status)}>
                             {task.category} · {task.status}
                             {task.sharedWith?.length ? ' · Shared' : ''}
+                          </span>
+                          <span className={`badge task-priority priority-${taskPriority(task)}`}>
+                            P{taskPriority(task)} · {taskPriorities[taskPriority(task) - 1].label}
                           </span>
                           <h3>{task.name}</h3>
                           <div>
@@ -1430,6 +1513,23 @@ function App() {
                                 <option key={s}>{s}</option>
                               ))}
                             </select>
+                            <select
+                              aria-label={'Priority for ' + task.name}
+                              className={`task-priority-select priority-${taskPriority(task)}`}
+                              value={taskPriority(task)}
+                              disabled={busy}
+                              onChange={(e) =>
+                                mutate((s) => {
+                                  s.tasks.find((t) => t.id === task.id).priority = +e.target.value;
+                                })
+                              }
+                            >
+                              {taskPriorities.map((p) => (
+                                <option key={p.value} value={p.value}>
+                                  P{p.value} · {p.label}
+                                </option>
+                              ))}
+                            </select>
                             <button
                               className="icon-btn"
                               title="Edit task"
@@ -1440,7 +1540,22 @@ function App() {
                           </div>
                         </div>
                       ))}
-                    <button className="list-footer" onClick={() => openAdd('task', { status })}>
+                    {!filteredTasks.some((t) => t.status === status) && (
+                      <p className="empty">
+                        {tasks.some((t) => t.status === status)
+                          ? 'No tasks match these filters.'
+                          : 'No tasks in this status yet.'}
+                      </p>
+                    )}
+                    <button
+                      className="list-footer"
+                      onClick={() =>
+                        openAdd('task', {
+                          status,
+                          priority: taskFilters.priority === 'All' ? 3 : +taskFilters.priority,
+                        })
+                      }
+                    >
                       <Plus size={15} /> Add a task
                     </button>
                   </section>
@@ -1821,6 +1936,7 @@ function App() {
                     if (type === 'task') {
                       record.owner = r?.owner || pid;
                       record.sharedWith = data.sharedWith || [];
+                      record.priority = +data.priority;
                     }
                     if (type === 'profile') {
                       record.income = r?.income ?? +data.income;
@@ -2239,6 +2355,18 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
               </label>
             ))}
         </fieldset>
+      )}
+      {type === 'task' && (
+        <label>
+          Priority
+          <select name="priority" defaultValue={taskPriority(r)}>
+            {taskPriorities.map((p) => (
+              <option key={p.value} value={p.value}>
+                P{p.value} · {p.label}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
       {type === 'task' && (
         <label>

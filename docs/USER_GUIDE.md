@@ -47,3 +47,9 @@ An idle, visible app refreshes changes from other tabs or devices every 10 secon
 ### Due days per profile
 
 Edit a shared bill and use Separate due days to enter each participant’s due day (1–31). A blank value follows the bill’s default due day. Each profile uses its date for sorting, due labels and overdue filters on Overview, Recurring bills and Shared expenses. The amount, 50/50 split and paid status remain one shared record. Days beyond the end of a month use its final day. Edits apply from the selected month onward; saved paid months retain their historical dates.
+
+### Task priorities and filters
+
+Priorities run from **P1 Urgent** (red in the classic palette) through **P2 High** (amber), **P3 Normal** (blue) to **P4 Low** (muted). Each badge includes its number and label, and colours follow the selected status palette. New and older tasks default to P3 until you change them. Set the priority in the editor or directly on a task card; shared profiles see the same value.
+
+Use the to-do toolbar to combine a priority filter, name/category search and Shared/Private visibility. Sort by priority (P1 first), name or original order. Column counts reflect the filtered list, and Showing X of Y reports the full total. Clear filters restores the complete list. Adding from a status column uses the selected priority filter for the new task.
