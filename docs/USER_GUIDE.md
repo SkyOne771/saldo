@@ -28,7 +28,7 @@ The shared balance uses paid bills and their selected-month payers. Positive mea
 
 Debt instalments are planned monthly outgoings. Record only the principal repaid to reduce the remaining balance; interest is excluded from that entry. Editing a repayment adjusts only the principal difference, and deleting it restores that principal. Corrections outside the debt's starting/balance bounds are rejected. History for a deleted debt can be edited or deleted separately and is labelled as history-only.
 
-The debt grid has its own adjacent controls for colours, milestone amount, columns and labels. It adapts on mobile and scales the milestone size to keep rendering within 1,000 squares.
+The debt grid has its own adjacent controls for colours, milestone amount, columns and labels. Remaining and paid colours are calculated automatically from the current total debt and repayments; partially repaid squares show both colours proportionally. The legend displays the exact remaining balance. It adapts on mobile and scales the milestone size to keep rendering within 1,000 squares.
 
 ## Other records and recovery
 

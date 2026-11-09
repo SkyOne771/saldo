@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-09 — Automatic debt grid
+
+- Debt squares now show partial repayments proportionally and display the automatically calculated remaining balance and total grid amount.
+
 ## 2026-11-09 — Task status colours
 
 - To do tasks use the red status colour in the classic palette, matching green Done and amber In progress. Overview badges and task-card accents use the same mapping. Other palettes retain their configured status colours.
