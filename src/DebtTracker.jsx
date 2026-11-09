@@ -26,7 +26,8 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
             {step !== c.step
               ? 'Milestones are enlarged to keep the grid within 1,000 squares. '
               : ''}
-            ✓ Paid · outlined = next milestone.
+            Colours update automatically from your total debt and repayments, including partial
+            squares. ✓ Paid · outlined = next milestone.
           </p>
         </div>
         <button
@@ -151,11 +152,17 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
         {Array.from({ length: count }, (_, i) => {
           const amount = Math.min((i + 1) * step, original),
             done = paidOff >= amount,
-            next = !done && paidOff >= i * step;
+            next = !done && paidOff >= i * step,
+            squareAmount = amount - i * step,
+            paidAmount = Math.max(0, Math.min(squareAmount, paidOff - i * step)),
+            fill = (paidAmount / squareAmount) * 100;
           return (
             <div
               key={i}
               className={done ? 'done' : next ? 'next' : ''}
+              style={{
+                background: `linear-gradient(to right, ${c.paid} ${fill}%, ${c.remaining} ${fill}%)`,
+              }}
               title={`${number(amount)} zł · ${done ? 'Paid' : next ? 'Next milestone' : 'Remaining'}`}
               aria-label={`${number(amount)} zł: ${done ? 'Paid' : next ? 'Next milestone' : 'Remaining'}`}
             >
@@ -176,6 +183,10 @@ export default function DebtTracker({ profile, original, paidOff, state, mutate,
         <span>✓ Paid</span>
         <span>◇ Next milestone</span>
         <span>{number(paidOff)} zł paid off</span>
+        <span>{number(Math.max(0, original - paidOff))} zł remaining</span>
+        <span>
+          {count} squares calculated from {number(original)} zł starting debt
+        </span>
       </div>
       <details className="tracker-app-theme">
         <summary>App theme & appearance</summary>
