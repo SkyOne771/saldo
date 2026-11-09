@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-09 — Active-profile payer defaults
+
+- Unpaid shared bills default to the active participant as payer. Individual and bulk payment actions persist that choice, while explicit month-specific payers and paid history remain unchanged.
+
 ## 2026-11-09 — Task priorities and filters
 
 - Added P1–P4 task priorities with semantic colours, inline editing and a P3 default for existing tasks.

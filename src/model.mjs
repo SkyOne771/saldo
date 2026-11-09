@@ -247,13 +247,15 @@ export function billShare(state, bill, profile) {
   const cents = Math.round(bill.amount * 100);
   return (bill.owner === profile ? Math.ceil(cents / 2) : Math.floor(cents / 2)) / 100;
 }
-export function billPayer(bill, month, state) {
+export function billPayer(bill, month, state, profile) {
   const payer = bill.payers?.[month] || bill.payer || bill.owner;
   const participants = state
     ? billParticipants(state, bill)
     : bill.shared
       ? [bill.owner, bill.partnerId || payer]
       : [bill.owner];
+  if (!bill.paid?.[month] && !bill.payers?.[month] && participants.includes(profile))
+    return profile;
   return participants.includes(payer) ? payer : bill.owner;
 }
 export function setBillPayer(state, id, month, payer) {
@@ -744,9 +746,13 @@ export function editBillForMonth(state, id, data, month) {
       [month]: { ...terms, payer: billPayer({ ...b, ...terms }, month, state) },
     };
 }
-export function setBillPaid(state, id, month, paid) {
+export function setBillPaid(state, id, month, paid, profile) {
   const b = state.bills.find((b) => b.id === id);
   if (!b) throw Error('Bill not found.');
+  if (paid && !b.paid[month] && profile) {
+    const terms = billForMonth(state, b, month);
+    setBillPayer(state, id, month, billPayer(terms, month, state, profile));
+  }
   if (!paid && b.settlements?.[month]) {
     b.versions = { ...b.versions, [month]: b.settlements[month] };
     delete b.settlements[month];

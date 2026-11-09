@@ -347,7 +347,7 @@ export default function BillsPanel({
                 <select
                   aria-label={'Payer for ' + b.name}
                   disabled={busy}
-                  value={billPayer(b, month, state)}
+                  value={billPayer(b, month, state, profile)}
                   onChange={(e) =>
                     mutate(
                       (s) => setBillPayer(s, b.id, month, e.target.value),
@@ -488,7 +488,7 @@ export default function BillsPanel({
                 onClick={async () => {
                   if (
                     await mutate((s) => {
-                      for (const b of unpaid) setBillPaid(s, b.id, month, true);
+                      for (const b of unpaid) setBillPaid(s, b.id, month, true, profile);
                     }, 'Visible bills marked paid')
                   )
                     setBulkConfirm(false);
