@@ -26,7 +26,7 @@ During development Vite middleware is served by the same Express process. In pro
 
 ## Account isolation and state
 
-Each authenticated user owns a JSON finance state and a revision in SQLite. The server derives the account from its session; requests cannot select a different account ID. The state contains profiles, bills, debts, repayments, expenses and tasks. Profiles are budgeting views within an account, not separate logins or permission boundaries.
+Each authenticated user owns a JSON finance state and a revision in SQLite. The server derives the account from its session; requests cannot select a different account ID. The state contains profiles, bills, debts, repayments, expenses and tasks. Profiles are budgeting views within an account, not separate logins or permission boundaries. Tasks can list other profile IDs in `sharedWith`; all participating views reference one task ID. The server validates recipient IDs inside the authenticated account. Visible idle clients refresh state every 10 seconds; revisions and draft conflict recovery protect concurrent writes.
 
 This aggregate makes account export/restore and local hosting straightforward. The tradeoff is that writes replace the account aggregate rather than updating a normalised ledger. State size, collection sizes, references, monetary precision and revisions are validated. This design targets small household datasets, not high-volume transactions or analytics.
 

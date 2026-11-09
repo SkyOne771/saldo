@@ -10,6 +10,8 @@ import {
   trackerSettings,
   trackerDefaults,
   debtTrackerProgress,
+  visibleTask,
+  shareTasks,
 } from '../src/model.mjs';
 test('repayment corrections and deletion preserve later principal payments', () => {
   const s = seed(),
@@ -128,4 +130,44 @@ test('tracker remaining overrides reject hostile, negative and fractional-cent v
     s.profiles[0].tracker = { ...trackerDefaults, remainingOverride };
     assert.ok(validState(s));
   }
+});
+
+test('shared tasks use one record across profiles and preserve private tasks', () => {
+  const s = seed(),
+    owner = s.profiles[0].id,
+    partner = s.profiles[1].id;
+  s.profiles.push({ id: 'third', name: 'Third', income: 0 });
+  const task = s.tasks.find((t) => t.owner === owner),
+    length = s.tasks.length;
+  assert.equal(visibleTask(task, partner), false);
+  shareTasks(s, owner, [partner]);
+  assert.deepEqual(s.profiles.find((p) => p.id === owner).taskSharedWith, [partner]);
+  assert.deepEqual(s.profiles.find((p) => p.id === partner).taskSharedWith, [owner]);
+  assert.equal(s.profiles.find((p) => p.id === 'third').taskSharedWith, undefined);
+  assert.equal(s.tasks.length, length);
+  assert.equal(visibleTask(task, owner), true);
+  assert.equal(visibleTask(task, partner), true);
+  assert.equal(visibleTask(task, 'third'), false);
+  s.tasks.find((t) => visibleTask(t, partner) && t.id === task.id).status = 'Done';
+  assert.equal(s.tasks.find((t) => visibleTask(t, owner) && t.id === task.id).status, 'Done');
+  assert.ok(validState(s));
+  s.tasks = s.tasks.filter((t) => t.id !== task.id);
+  assert.equal(
+    s.tasks.filter((t) => visibleTask(t, partner)).some((t) => t.id === task.id),
+    false,
+  );
+  assert.throws(() => shareTasks(s, owner, ['foreign-account-profile']));
+  assert.throws(() => shareTasks(s, owner, [owner]));
+});
+test('task sharing validates recipients and survives profile deletion', () => {
+  for (const sharedWith of ['other', ['foreign'], ['alex'], ['sam', 'sam']]) {
+    const s = seed();
+    s.tasks[0].sharedWith = sharedWith;
+    assert.equal(validState(s), false);
+  }
+  const s = seed();
+  shareTasks(s, 'alex', ['sam']);
+  deleteProfile(s, 'alex', 'sam');
+  assert.ok(validState(s));
+  assert.ok(s.tasks.every((t) => t.owner === 'sam' && !t.sharedWith?.length));
 });

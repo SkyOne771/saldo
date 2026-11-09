@@ -37,3 +37,9 @@ Extra expenses can be edited, moved between months or deleted with confirmation.
 A conflicting save keeps the draft and opens a recovery screen. Review overlapping values, save combined changes or download the draft. This does not make financial changes silently.
 
 Account security provides password changes, recovery-code generation and sign-out for other sessions. Save recovery codes privately. Use Forgot password on the sign-in screen or ask the administrator for a short-lived recovery code. JSON export/restore covers finance data, not authentication credentials; restore replaces the account's finance state after confirmation.
+
+### Shared tasks
+
+Tasks start private to their profile. In the task editor, select the profiles that should share it. Each selected profile sees the same task and can edit its name or status, change sharing, or delete it; there are no duplicate copies. “Share my existing tasks” shares your current profile’s tasks after confirmation. Other profiles’ existing private tasks stay private to their view. Bulk sharing also defaults new tasks to shared for the selected profiles; each task can be made private in its editor, or use “Make my new tasks private” to change your own default.
+
+An idle, visible app refreshes changes from other tabs or devices every 10 seconds and when refocused. Open editors keep their drafts; concurrent saves use the existing conflict recovery. Profiles are views inside one login, not separate security boundaries. This feature does not link separate email/password accounts.
