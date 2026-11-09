@@ -373,7 +373,8 @@ export function validState(state) {
           str(p.name) &&
           amount(p.income) &&
           (p.incomeChanges === undefined || months(p.incomeChanges, amount)) &&
-          (p.tracker === undefined || validTracker(p.tracker)),
+          (p.tracker === undefined || validTracker(p.tracker)) &&
+          (p.taskSharedWith === undefined || validTaskRecipients(state, p.taskSharedWith, p.id)),
       )
     )
       return false;
@@ -424,6 +425,7 @@ export function validState(state) {
           str(t.name) &&
           str(t.category) &&
           owner(t) &&
+          (t.sharedWith === undefined || validTaskRecipients(state, t.sharedWith, t.owner)) &&
           ['To do', 'In progress', 'Done'].includes(t.status),
       )
     )
@@ -531,6 +533,14 @@ export function deleteProfile(state, id, target) {
   }
   for (const key of ['debts', 'payments', 'expenses', 'tasks'])
     for (const r of state[key]) if (r.owner === id) r.owner = target;
+  for (const task of state.tasks)
+    if (task.sharedWith)
+      task.sharedWith = task.sharedWith.filter((p) => p !== id && p !== task.owner);
+  for (const p of state.profiles)
+    if (p.taskSharedWith)
+      p.taskSharedWith = p.taskSharedWith.filter(
+        (recipient) => recipient !== id && recipient !== p.id,
+      );
   state.profiles = state.profiles.filter((p) => p.id !== id);
 }
 export const trackerDefaults = {
@@ -735,4 +745,30 @@ export function billDueDate(bill, month) {
   const [y, m] = month.split('-').map(Number),
     last = new Date(y, m, 0).getDate();
   return `${month}-${String(Math.min(bill.day, last)).padStart(2, '0')}`;
+}
+
+export function visibleTask(task, profile) {
+  return task.owner === profile || !!task.sharedWith?.includes(profile);
+}
+export function shareTasks(state, owner, profiles) {
+  if (
+    !state.profiles.some((p) => p.id === owner) ||
+    !Array.isArray(profiles) ||
+    profiles.some((id) => id === owner || !state.profiles.some((p) => p.id === id))
+  )
+    throw Error('Choose valid profiles to share tasks.');
+  const participants = [...new Set([owner, ...profiles])];
+  for (const p of state.profiles)
+    if (participants.includes(p.id)) p.taskSharedWith = participants.filter((id) => id !== p.id);
+  for (const task of state.tasks)
+    if (task.owner === owner) task.sharedWith = [...new Set(profiles)];
+}
+
+function validTaskRecipients(state, recipients, owner) {
+  return (
+    Array.isArray(recipients) &&
+    recipients.length < state.profiles.length &&
+    new Set(recipients).size === recipients.length &&
+    recipients.every((id) => id !== owner && state.profiles.some((p) => p.id === id))
+  );
 }

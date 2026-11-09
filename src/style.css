@@ -3449,3 +3449,26 @@ nav em {
   max-width: 420px;
   line-height: 1.6;
 }
+
+.task-sharing-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.task-sharing-panel p,
+.task-sharing-panel small,
+.task-sharing-fields p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 12px;
+  max-width: 560px;
+}
+.task-sharing-fields {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 18px 0;
+  padding: 14px;
+}

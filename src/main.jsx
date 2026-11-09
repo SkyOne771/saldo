@@ -69,6 +69,8 @@ import {
   editBillForMonth,
   incomeForMonth,
   setMonthlyIncome,
+  visibleTask,
+  shareTasks,
 } from './model.mjs';
 import './style.css';
 const money = (n, dec) =>
@@ -135,8 +137,10 @@ function App() {
     [cashflowJump, setCashflowJump] = useState(null),
     [conflict, setConflict] = useState(null),
     [recoveryCode, setRecoveryCode] = useState(''),
+    [shareConfirm, setShareConfirm] = useState(false),
     [narrow, setNarrow] = useState(() => window.matchMedia('(max-width:650px)').matches);
   const saving = useRef(false);
+  useEffect(() => setShareConfirm(false), [profile]);
   useEffect(() => {
     const expired = () => {
       csrfToken = '';
@@ -224,6 +228,33 @@ function App() {
     media.addEventListener('change', apply);
     return () => media.removeEventListener('change', apply);
   }, [state?.appearance?.color, state?.appearance?.mode, state?.statusPalette]);
+  useEffect(() => {
+    if (!session?.authenticated || modal || conflict) return;
+    let cancelled = false,
+      loading = false;
+    const refresh = async () => {
+      if (loading || saving.current || document.visibilityState !== 'visible') return;
+      loading = true;
+      try {
+        const latest = await api('state');
+        if (!cancelled && !saving.current && latest.revision > revision) {
+          setState(latest.state);
+          setRevision(latest.revision);
+        }
+      } catch {
+        /* A normal edit or session check will expose connection errors. */
+      } finally {
+        loading = false;
+      }
+    };
+    const interval = setInterval(refresh, 10000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [session?.authenticated, revision, modal, conflict]);
   const notify = (t) => {
     setToast(t);
     setTimeout(() => setToast(''), 3500);
@@ -429,7 +460,7 @@ function App() {
     bills = state.bills
       .map((b) => billForMonth(state, b, month))
       .filter((b) => visibleBill(state, b, pid)),
-    tasks = state.tasks.filter((t) => t.owner === pid),
+    tasks = state.tasks.filter((t) => visibleTask(t, pid)),
     paid = bills.filter((b) => b.paid[month]),
     shared = bills.filter((b) => b.shared),
     sharedTotal = shared.reduce(
@@ -1277,58 +1308,143 @@ function App() {
           )}
 
           {page === 'To-do list' && (
-            <div className="kanban">
-              {['To do', 'In progress', 'Done'].map((status) => (
-                <section className="panel" key={status}>
-                  <PanelTitle
-                    title={status}
-                    right={
-                      <span className="badge neutral">
-                        {tasks.filter((t) => t.status === status).length}
-                      </span>
-                    }
-                  />
-                  {tasks
-                    .filter((t) => t.status === status)
-                    .map((task) => (
-                      <div
-                        className={'task-card task-' + task.status.toLowerCase().replace(' ', '-')}
-                        key={task.id}
-                      >
-                        <span className={'badge ' + statusClass(task.status)}>
-                          {task.category} · {task.status}
+            <>
+              <section className="panel task-sharing-panel">
+                <div>
+                  <h3>Shared tasks, one list</h3>
+                  <p>
+                    Shared tasks appear in each selected profile. Changes sync automatically across
+                    open tabs within 10 seconds.
+                  </p>
+                  <small>
+                    {tasks.filter((t) => t.sharedWith?.length).length} shared ·{' '}
+                    {tasks.filter((t) => !t.sharedWith?.length).length} private
+                  </small>
+                  <p>
+                    New tasks:{' '}
+                    {person.taskSharedWith?.length
+                      ? `shared with ${state.profiles
+                          .filter((p) => person.taskSharedWith.includes(p.id))
+                          .map((p) => p.name)
+                          .join(', ')}`
+                      : 'private unless you choose sharing in the editor'}
+                    .
+                  </p>
+                  {!!person.taskSharedWith?.length && (
+                    <button
+                      className="text-btn"
+                      disabled={busy}
+                      onClick={() =>
+                        mutate((s) => {
+                          s.profiles.find((p) => p.id === pid).taskSharedWith = [];
+                        }, 'New tasks will be private')
+                      }
+                    >
+                      Make my new tasks private
+                    </button>
+                  )}
+                </div>
+                {state.profiles.length > 1 && (
+                  <div>
+                    {shareConfirm && (
+                      <p>
+                        Share all your tasks with{' '}
+                        {state.profiles
+                          .filter((p) => p.id !== pid)
+                          .map((p) => p.name)
+                          .join(', ')}
+                        ? They can edit and delete them. New tasks will default to shared for these
+                        profiles.
+                      </p>
+                    )}
+                    <button
+                      className="secondary"
+                      disabled={busy}
+                      onClick={async () => {
+                        if (!shareConfirm) {
+                          setShareConfirm(true);
+                          return;
+                        }
+                        if (
+                          await mutate(
+                            (s) =>
+                              shareTasks(
+                                s,
+                                pid,
+                                s.profiles.filter((p) => p.id !== pid).map((p) => p.id),
+                              ),
+                            'Tasks shared across profiles',
+                          )
+                        )
+                          setShareConfirm(false);
+                      }}
+                    >
+                      {shareConfirm ? 'Confirm sharing' : 'Share my existing tasks'}
+                    </button>
+                    {shareConfirm && (
+                      <button className="text-btn" onClick={() => setShareConfirm(false)}>
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                )}
+              </section>
+              <div className="kanban">
+                {['To do', 'In progress', 'Done'].map((status) => (
+                  <section className="panel" key={status}>
+                    <PanelTitle
+                      title={status}
+                      right={
+                        <span className="badge neutral">
+                          {tasks.filter((t) => t.status === status).length}
                         </span>
-                        <h3>{task.name}</h3>
-                        <div>
-                          <select
-                            aria-label={'Status for ' + task.name}
-                            value={task.status}
-                            onChange={(e) =>
-                              mutate((s) => {
-                                s.tasks.find((t) => t.id === task.id).status = e.target.value;
-                              })
-                            }
-                          >
-                            {['To do', 'In progress', 'Done'].map((s) => (
-                              <option key={s}>{s}</option>
-                            ))}
-                          </select>
-                          <button
-                            className="icon-btn"
-                            title="Edit task"
-                            onClick={() => openAdd('task', task)}
-                          >
-                            <Pencil size={14} />
-                          </button>
+                      }
+                    />
+                    {tasks
+                      .filter((t) => t.status === status)
+                      .map((task) => (
+                        <div
+                          className={
+                            'task-card task-' + task.status.toLowerCase().replace(' ', '-')
+                          }
+                          key={task.id}
+                        >
+                          <span className={'badge ' + statusClass(task.status)}>
+                            {task.category} · {task.status}
+                            {task.sharedWith?.length ? ' · Shared' : ''}
+                          </span>
+                          <h3>{task.name}</h3>
+                          <div>
+                            <select
+                              aria-label={'Status for ' + task.name}
+                              value={task.status}
+                              onChange={(e) =>
+                                mutate((s) => {
+                                  s.tasks.find((t) => t.id === task.id).status = e.target.value;
+                                })
+                              }
+                            >
+                              {['To do', 'In progress', 'Done'].map((s) => (
+                                <option key={s}>{s}</option>
+                              ))}
+                            </select>
+                            <button
+                              className="icon-btn"
+                              title="Edit task"
+                              onClick={() => openAdd('task', task)}
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  <button className="list-footer" onClick={() => openAdd('task', { status })}>
-                    <Plus size={15} /> Add a task
-                  </button>
-                </section>
-              ))}
-            </div>
+                      ))}
+                    <button className="list-footer" onClick={() => openAdd('task', { status })}>
+                      <Plus size={15} /> Add a task
+                    </button>
+                  </section>
+                ))}
+              </div>
+            </>
           )}
           {page === 'Settings' && (
             <div className="settings-grid">
@@ -1700,7 +1816,10 @@ function App() {
                         month: data.month || month,
                         owner: r?.owner || pid,
                       });
-                    if (type === 'task') record.owner = pid;
+                    if (type === 'task') {
+                      record.owner = r?.owner || pid;
+                      record.sharedWith = data.sharedWith || [];
+                    }
                     if (type === 'profile') {
                       record.income = r?.income ?? +data.income;
                       if (r?.id) setMonthlyIncome(record, month, +data.income);
@@ -1888,7 +2007,9 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
+        const form = new FormData(e.target),
+          data = Object.fromEntries(form);
+        if (type === 'task') data.sharedWith = form.getAll('sharedWith');
         if (data.name && !data.name.trim()) {
           setLocalError('Enter a name.');
           return;
@@ -1914,7 +2035,9 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
           : `For ${person.name} · ${month}`}
       </p>
       {['bill', 'debt', 'task', 'expense', 'profile'].includes(type) &&
-        field('name', type === 'profile' ? 'Profile name' : 'Name', 'text', '', { maxLength: 100 })}
+        field('name', type === 'profile' ? 'Profile name' : 'Name', 'text', '', {
+          maxLength: type === 'task' ? 200 : 100,
+        })}
       {['expense', 'payment', 'repayment', 'bill'].includes(type) &&
         field(
           'amount',
@@ -2052,6 +2175,30 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
             ))}
           </select>
         </label>
+      )}
+      {type === 'task' && profiles.length > 1 && (
+        <fieldset className="task-sharing-fields">
+          <legend>Share this task</legend>
+          <p>
+            One task, kept in sync across the selected profiles. Anyone listed can edit or delete
+            it.
+          </p>
+          {profiles
+            .filter((p) => p.id !== (r.owner || person.id))
+            .map((p) => (
+              <label className="checkbox" key={p.id}>
+                <input
+                  type="checkbox"
+                  name="sharedWith"
+                  value={p.id}
+                  defaultChecked={
+                    r.id ? r.sharedWith?.includes(p.id) : person.taskSharedWith?.includes(p.id)
+                  }
+                />
+                {p.name}
+              </label>
+            ))}
+        </fieldset>
       )}
       {type === 'task' && (
         <label>

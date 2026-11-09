@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-09 — Shared profile tasks
+
+- Added opt-in task sharing between profiles, with one synchronised record, per-task recipients and confirmed bulk sharing.
+- Idle visible clients refresh other-tab changes while preserving open editors and concurrent-edit recovery.
+
 ## 2026-11-09 — Debt balance synchronisation
 
 - Tracker balances explicitly follow live debt totals; partial final bricks have proportional widths and exact paid/remaining amounts.
