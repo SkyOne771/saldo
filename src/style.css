@@ -3386,3 +3386,35 @@ nav em {
 :root[data-mode='light']:not([data-status-palette='contrast']) {
   --upcoming-fg: #47638b;
 }
+
+/* Keep the overview headings on the same tracks as their bill values. */
+@media (min-width: 651px) {
+  .bills-panel .table-head,
+  .bills-panel .bill-row {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 54px 76px 86px 28px;
+    column-gap: 10px;
+    align-items: center;
+  }
+  .bills-panel .table-head > span:first-child {
+    grid-column: 2;
+  }
+  .bills-panel .table-head > span:nth-child(3) {
+    padding-right: 0;
+  }
+  .bills-panel .bill-row .due,
+  .bills-panel .bill-row .bill-amount,
+  .bills-panel .bill-row .status {
+    width: auto;
+    min-width: 0;
+    margin: 0;
+  }
+  .bills-panel .bill-row .item-name b {
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 650px) {
+  .bills-panel .table-head {
+    display: none;
+  }
+}
