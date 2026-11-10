@@ -1186,7 +1186,7 @@ function App() {
                   value={Math.abs(sharedBalance(state, pid, month))}
                   icon={ArrowLeftRight}
                   color="orange"
-                  note="Based on bills marked paid this month"
+                  note="Paid bills minus confirmed reimbursements this month"
                 />
               </div>
               <BillsPanel

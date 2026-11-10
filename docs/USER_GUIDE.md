@@ -54,6 +54,10 @@ Priorities run from **P1 Urgent** (red in the classic palette) through **P2 High
 
 Use the to-do toolbar to combine a priority filter, name/category search and Shared/Private visibility. Sort by priority (P1 first), name or original order. Column counts reflect the filtered list, and Showing X of Y reports the full total. Clear filters restores the complete list. Adding from a status column uses the selected priority filter for the new task.
 
-### Default payer
+### Default payer and each person’s half
 
-For an unpaid bill with no payer saved for that month, Paid by defaults to the active profile. Marking it paid records that payer for everyone, including when marking multiple shown bills paid. Choosing a payer explicitly is shared across profiles and takes precedence over the default. Switching profiles never rewrites paid history or a saved payer choice.
+Bill paid by uses the configured bill payer (the bill owner when none is set) in both profiles. Switching profiles does not change it. A saved month-specific payer overrides that default. Existing payment history stays unchanged.
+
+The Bill: Paid button records payment to the provider. Each person also has an independent half-payment confirmation under the bill name. From your profile, click your named button to confirm or undo your own half; switch profiles to confirm the other person’s half. One person’s confirmation never completes the other’s. Existing bills start with no personal confirmations; the app does not infer them from the provider’s paid status. Confirmations are saved per month and sync across both views.
+
+For a bill already paid to the provider, the non-payer’s confirmation records reimbursement and removes that bill from the amount owed. Undoing it restores the reimbursement due. Personal confirmations do not change the original bill-paid status, amounts or budget. Use All halves / My half pending / My half paid to find your unfinished payments. The bulk bill-paid action only marks payments to providers, not either person’s half.
