@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-10 — Independent shared-bill confirmations
+
+- Restored the configured bill payer as the common default in both profiles. Existing saved payers and provider-payment history stay intact.
+- Added separate per-person, per-month half-payment confirmations and filters. Confirmed reimbursements reduce shared balances without completing the other person’s half or changing the provider payment.
+
 ## 2026-11-09 — Active-profile payer defaults
 
 - Unpaid shared bills default to the active participant as payer. Individual and bulk payment actions persist that choice, while explicit month-specific payers and paid history remain unchanged.

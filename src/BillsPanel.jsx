@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Check,
   Clock,
+  Circle,
   Plus,
   Pencil,
   Search,
@@ -28,6 +29,8 @@ import {
   importBillsToView,
   setBillPaid,
   billDueDate,
+  sharePaid,
+  setSharePaid,
 } from './model.mjs';
 const money = (n) => new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 }).format(n);
 export default function BillsPanel({
@@ -43,6 +46,7 @@ export default function BillsPanel({
 }) {
   const [search, setSearch] = useState(''),
     [filter, setFilter] = useState('All'),
+    [shareFilter, setShareFilter] = useState('All'),
     [sort, setSort] = useState('Due date'),
     [transfer, setTransfer] = useState(false),
     [bulkConfirm, setBulkConfirm] = useState(false),
@@ -71,6 +75,12 @@ export default function BillsPanel({
         (filter === 'Unpaid' &&
           !['Paid', 'Scheduled'].includes(billStatus(b, month, new Date(), profile))) ||
         filter === billStatus(b, month, new Date(), profile),
+    )
+    .filter(
+      (b) =>
+        !sharedPage ||
+        shareFilter === 'All' ||
+        (shareFilter === 'Paid' ? sharePaid(b, month, profile) : !sharePaid(b, month, profile)),
     )
     .sort((a, b) =>
       sort === 'Name'
@@ -120,7 +130,11 @@ export default function BillsPanel({
       <div className="bill-manager-heading">
         <div>
           <h3>{sharedPage ? 'Your shared bills' : 'Your recurring payments'}</h3>
-          <p>Remove from this list only. Your budget, split and payment history stay intact.</p>
+          <p>
+            {sharedPage
+              ? 'Bill payment tracks the provider. Confirm your own half below; your partner confirms theirs separately.'
+              : 'Remove from this list only. Your budget, split and payment history stay intact.'}
+          </p>
         </div>
         <div className="bill-toolbar">
           <button className="secondary" onClick={() => setTransfer(true)}>
@@ -183,6 +197,18 @@ export default function BillsPanel({
         </div>
       )}
       <div className="bill-filters">
+        {sharedPage && (
+          <select
+            aria-label="Filter your half"
+            value={shareFilter}
+            onChange={(e) => setShareFilter(e.target.value)}
+          >
+            <option value="All">All halves</option>
+            <option value="Pending">My half pending</option>
+            <option value="Paid">My half paid</option>
+          </select>
+        )}
+
         <label className="search">
           <Search size={16} />
           <input
@@ -218,7 +244,7 @@ export default function BillsPanel({
         {unpaid.length > 1 && (
           <button className="text-btn" disabled={busy} onClick={() => setBulkConfirm(true)}>
             <CheckCircle2 size={14} />
-            Mark shown paid
+            Mark shown bills paid
           </button>
         )}
       </div>
@@ -258,7 +284,7 @@ export default function BillsPanel({
       )}
       {!shown.length && (
         <div className="empty payments-empty">
-          {search || filter !== 'All' ? (
+          {search || filter !== 'All' || shareFilter !== 'All' ? (
             <>
               <p>No payments match these filters.</p>
               <button
@@ -266,6 +292,7 @@ export default function BillsPanel({
                 onClick={() => {
                   setSearch('');
                   setFilter('All');
+                  setShareFilter('All');
                 }}
               >
                 Clear filters
@@ -336,6 +363,44 @@ export default function BillsPanel({
                   ? ` · Not in ${otherName}`
                   : ''}
               </span>
+              {b.shared && scope === 'Active' && (
+                <div className="share-confirmations" aria-label={`Share payments for ${b.name}`}>
+                  <span className="share-confirmations-label">Each person’s half</span>
+                  {billParticipants(state, b).map((id) => {
+                    const done = sharePaid(b, month, id),
+                      mine = id === profile,
+                      name = state.profiles.find((p) => p.id === id)?.name;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`share-confirmation ${done ? 'paid' : 'neutral'}`}
+                        disabled={busy || !mine || status === 'Scheduled'}
+                        aria-pressed={done}
+                        aria-label={`${mine ? 'My' : name + '’s'} half of ${b.name}: ${done ? 'paid' : 'not confirmed'}`}
+                        title={
+                          mine
+                            ? 'Confirm or undo payment of your half only'
+                            : `Switch to ${name} to confirm their half`
+                        }
+                        onClick={() =>
+                          mutate(
+                            (s) => setSharePaid(s, b.id, month, profile, !done),
+                            done ? 'Your half marked unpaid' : 'Your half confirmed paid',
+                          )
+                        }
+                      >
+                        {done ? <Check size={13} /> : <Circle size={13} />}
+                        <span>
+                          {name}
+                          {mine ? ' (you)' : ''} · {money(billShare(state, b, id))} zł
+                        </span>
+                        <b>{done ? 'Paid' : 'Pending'}</b>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <div className="payment-value">
               <b>{money(b.amount)} zł</b>
@@ -343,11 +408,11 @@ export default function BillsPanel({
             </div>
             {sharedPage && scope === 'Active' && (
               <label className="payer-field">
-                Paid by
+                Bill paid by
                 <select
                   aria-label={'Payer for ' + b.name}
                   disabled={busy}
-                  value={billPayer(b, month, state, profile)}
+                  value={billPayer(b, month, state)}
                   onChange={(e) =>
                     mutate(
                       (s) => setBillPayer(s, b.id, month, e.target.value),
@@ -371,7 +436,8 @@ export default function BillsPanel({
                 title={b.paid[month] ? 'Click to mark unpaid' : 'Click to mark paid'}
                 onClick={() => paidToggle(b)}
               >
-                {status === 'Paid' ? <Check size={12} /> : <Clock size={12} />} {status}
+                {status === 'Paid' ? <Check size={12} /> : <Clock size={12} />}{' '}
+                {b.shared ? `Bill: ${status}` : status}
               </button>
             ) : (
               <span className="badge neutral">Removed here</span>
@@ -462,6 +528,7 @@ export default function BillsPanel({
               switchScope('Active');
               setSearch('');
               setFilter('All');
+              setShareFilter('All');
             }
           }}
           onAddProfile={() => {

@@ -247,15 +247,13 @@ export function billShare(state, bill, profile) {
   const cents = Math.round(bill.amount * 100);
   return (bill.owner === profile ? Math.ceil(cents / 2) : Math.floor(cents / 2)) / 100;
 }
-export function billPayer(bill, month, state, profile) {
+export function billPayer(bill, month, state) {
   const payer = bill.payers?.[month] || bill.payer || bill.owner;
   const participants = state
     ? billParticipants(state, bill)
     : bill.shared
       ? [bill.owner, bill.partnerId || payer]
       : [bill.owner];
-  if (!bill.paid?.[month] && !bill.payers?.[month] && participants.includes(profile))
-    return profile;
   return participants.includes(payer) ? payer : bill.owner;
 }
 export function setBillPayer(state, id, month, payer) {
@@ -312,21 +310,42 @@ export const statusClass = (status) =>
     'In progress': 'progress-badge',
     Done: 'paid',
   })[status] || 'neutral';
+export function sharePaid(bill, month, profile) {
+  return bill.sharePayments?.[month]?.[profile] === true;
+}
+export function setSharePaid(state, id, month, profile, paid) {
+  const bill = state.bills.find((b) => b.id === id);
+  if (!bill || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || typeof paid !== 'boolean')
+    throw Error('Invalid share payment.');
+  const terms = billForMonth(state, bill, month);
+  if (!terms.shared || !billParticipants(state, terms).includes(profile))
+    throw Error('Choose a participant in this shared bill.');
+  if (billStatus(terms, month) === 'Scheduled') throw Error('This bill is not due this month.');
+  bill.sharePayments = {
+    ...bill.sharePayments,
+    [month]: { ...bill.sharePayments?.[month], [profile]: paid },
+  };
+}
 export function sharedBalance(state, profile, month) {
   return roundMoney(
     state.bills
       .map((b) => billForMonth(state, b, month))
       .filter((b) => b.shared && visibleBill(state, b, profile) && b.paid?.[month])
-      .reduce(
-        (sum, b) =>
+      .reduce((sum, b) => {
+        const payer = billPayer(b, month, state),
+          partner = billParticipants(state, b).find((id) => id !== payer);
+        // The non-payer confirms their reimbursement; never charge both sides twice.
+        if (sharePaid(b, month, partner)) return sum;
+        return (
           sum +
-          (billPayer(b, month, state) === profile
+          (payer === profile
             ? -(b.amount - billShare(state, b, profile))
-            : billShare(state, b, profile)),
-        0,
-      ),
+            : billShare(state, b, profile))
+        );
+      }, 0),
   );
 }
+
 export function validState(state) {
   try {
     const obj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v),
@@ -393,6 +412,15 @@ export function validState(state) {
           Object.keys(b.paid).length <= 1200 &&
           Object.entries(b.paid).every(([k, v]) => month(k) && typeof v === 'boolean') &&
           (!b.payers || months(b.payers, (v) => ids.has(v))) &&
+          (b.sharePayments === undefined ||
+            months(
+              b.sharePayments,
+              (payments) =>
+                obj(payments) &&
+                Object.entries(payments).every(
+                  ([id, paid]) => ids.has(id) && typeof paid === 'boolean',
+                ),
+            )) &&
           (b.hiddenViews === undefined ||
             (obj(b.hiddenViews) &&
               Object.entries(b.hiddenViews).every(
@@ -543,6 +571,13 @@ export function deleteProfile(state, id, target) {
       if (b.payer === id) b.payer = target;
       if (b.payers)
         for (const m of Object.keys(b.payers)) if (b.payers[m] === id) b.payers[m] = target;
+    }
+  }
+  for (const bill of state.bills) {
+    for (const payments of Object.values(bill.sharePayments || {})) {
+      if (payments[id] !== undefined && payments[target] === undefined)
+        payments[target] = payments[id];
+      delete payments[id];
     }
   }
   for (const key of ['debts', 'payments', 'expenses', 'tasks'])
