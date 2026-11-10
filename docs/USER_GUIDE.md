@@ -61,3 +61,9 @@ Bill paid by uses the configured bill payer (the bill owner when none is set) in
 The Bill: Paid button records payment to the provider. Each person also has an independent half-payment confirmation under the bill name. From your profile, click your named button to confirm or undo your own half; switch profiles to confirm the other person’s half. One person’s confirmation never completes the other’s. Existing bills start with no personal confirmations; the app does not infer them from the provider’s paid status. Confirmations are saved per month and sync across both views.
 
 For a bill already paid to the provider, the non-payer’s confirmation records reimbursement and removes that bill from the amount owed. Undoing it restores the reimbursement due. Personal confirmations do not change the original bill-paid status, amounts or budget. Use All halves / My half pending / My half paid to find your unfinished payments. The bulk bill-paid action only marks payments to providers, not either person’s half.
+
+### Minimum needed
+
+Overview shows Minimum needed for the selected month: your share of essential recurring bills plus active monthly debt instalments. Shared bills count at your 50% share, personal bills count fully, and annual bills are spread over 12 months. One-off spending is excluded. New accounts start at zero.
+
+Existing bills are included by default as a conservative starting point. Edit a bill and uncheck Essential to exclude optional costs from this figure; it remains in Bills & living and the normal budget. Essential labels appear on recurring/shared bill rows. The flag belongs to the shared bill, so changing it applies to both profiles from the selected month forward, while paid history keeps its saved terms. This is a planning total based on your records, not an estimate of food or other costs you have not entered.

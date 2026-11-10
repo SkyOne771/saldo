@@ -893,7 +893,7 @@ function App() {
           )}
           {page === 'Overview' && (
             <>
-              <div className="stats-grid">
+              <div className="stats-grid overview-stats">
                 <Stat
                   title="Monthly income"
                   value={t.income}
@@ -922,6 +922,15 @@ function App() {
                   note={`${t.income ? money((t.debt / t.income) * 100, 1) : 0}% of your monthly income`}
                   onClick={() => setPage('Debts & goals')}
                   actionLabel="Manage debts"
+                />
+                <Stat
+                  title="Minimum needed"
+                  value={t.minimum}
+                  icon={ShieldCheck}
+                  color="orange"
+                  note={`${money(t.essentialBills)} zł essential bills + ${money(t.debt)} zł debt instalments`}
+                  onClick={() => setPage('Recurring bills')}
+                  actionLabel="Choose essential bills"
                 />
                 <Stat
                   title="Left to live & save"
@@ -1911,6 +1920,7 @@ function App() {
                       Object.assign(record, {
                         amount: +data.amount,
                         day: +data.day,
+                        essential: data.essential === 'on',
                         shared: data.shared === 'on',
                         paid: r?.paid || {},
                         owner: r?.owner || pid,
@@ -2222,6 +2232,15 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
               ))}
             </select>
           </label>
+          <label className="checkbox">
+            <input type="checkbox" name="essential" defaultChecked={r.essential !== false} />
+            Essential · include in minimum needed
+          </label>
+          <p className="field-help">
+            Minimum needed includes your share of essential bills and active debt instalments. Mark
+            optional expenses unchecked. One-off spending is excluded; annual bills are spread over
+            12 months.
+          </p>
           <label className="checkbox">
             <input
               type="checkbox"

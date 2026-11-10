@@ -194,6 +194,14 @@ export function totals(state, profile, month) {
       0,
     ),
   );
+  const essentialBills = roundMoney(
+    bills
+      .filter((b) => b.essential !== false)
+      .reduce(
+        (sum, b) => sum + billShare(state, b, profile) / (b.frequency === 'Yearly' ? 12 : 1),
+        0,
+      ),
+  );
   const debts = state.debts.filter((d) => d.owner === profile);
   const debt = roundMoney(debts.reduce((sum, d) => sum + (d.balance > 0 ? d.monthly : 0), 0));
   const income = incomeForMonth(
@@ -208,6 +216,8 @@ export function totals(state, profile, month) {
   return {
     income,
     living,
+    essentialBills,
+    minimum: roundMoney(essentialBills + debt),
     debt,
     expenses,
     remaining: roundMoney(income - living - debt - expenses),
@@ -380,6 +390,7 @@ export function validState(state) {
       Number.isInteger(b.day) &&
       b.day >= 1 &&
       b.day <= 31 &&
+      (b.essential === undefined || typeof b.essential === 'boolean') &&
       (b.dueDays === undefined ||
         (obj(b.dueDays) &&
           Object.entries(b.dueDays).every(
@@ -717,6 +728,7 @@ export function setMonthlyIncome(profile, month, value) {
 const termKeys = [
   'name',
   'amount',
+  'essential',
   'day',
   'dueDays',
   'shared',

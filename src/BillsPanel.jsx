@@ -354,6 +354,11 @@ export default function BillsPanel({
                   : ''}{' '}
                 · due {+billDueDate(b, month, profile).slice(-2)}
               </span>
+              <span className="essential-label">
+                {b.essential === false
+                  ? 'Optional · excluded from minimum'
+                  : 'Essential · included in minimum'}
+              </span>
               <span className="split-label">
                 {b.shared
                   ? `50/50 with ${state.profiles.find((p) => p.id === partner)?.name || 'partner'}`
