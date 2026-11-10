@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-10 — Minimum monthly budget
+
+- Overview now shows Minimum needed: essential recurring bills at the profile’s share plus active debt instalments, excluding one-off spending.
+- Bills support an editable essential flag, included by default, with effective-month and paid-history preservation. Annual bills are provisioned monthly.
+
 ## 2026-11-10 — Independent shared-bill confirmations
 
 - Restored the configured bill payer as the common default in both profiles. Existing saved payers and provider-payment history stay intact.

@@ -3566,3 +3566,21 @@ nav em {
 .share-confirmation b {
   font-size: 10px;
 }
+
+@media (min-width: 1201px) {
+  .stats-grid.overview-stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1200px) {
+  .stats-grid.overview-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .overview-stats > .stat:last-child {
+    grid-column: 1/-1;
+  }
+}
+.payment-name > .essential-label {
+  color: var(--text-muted);
+  font-size: 11px;
+}
