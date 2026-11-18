@@ -871,3 +871,13 @@ export function filterTasks(
           : 0,
     );
 }
+
+export function moveTask(state, id, status, profile) {
+  const task = state.tasks.find((t) => t.id === id);
+  if (!task || !visibleTask(task, profile)) throw Error('Task is not visible in this profile.');
+  if (!['To do', 'In progress', 'Done'].includes(status))
+    throw Error('Choose a valid task status.');
+  if (task.status === status) return false;
+  task.status = status;
+  return true;
+}

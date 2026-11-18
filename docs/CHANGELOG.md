@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-18 — Task drag and drop
+
+- Task cards can be dragged between status columns, including empty columns, with destination highlighting and cancellation.
+- Touch handles expose fixed status targets, while keyboard users retain the status dropdown. Moves preserve priorities and sharing and use revision-protected saves.
+
 ## 2026-11-10 — Minimum monthly budget
 
 - Overview now shows Minimum needed: essential recurring bills at the profile’s share plus active debt instalments, excluding one-off spending.
