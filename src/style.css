@@ -3661,3 +3661,109 @@ nav em {
   margin-bottom: 14px;
   font-size: 11px;
 }
+
+.task-edit-label {
+  display: none;
+}
+.task-drag-handle {
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.task-touch-targets {
+  top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  right: max(10px, env(safe-area-inset-right));
+}
+@media (max-width: 900px), (pointer: coarse) {
+  .task-card > .task-drag-handle {
+    min-width: 88px;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .task-card h3 {
+    font-size: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .task-card > .task-due-date {
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .task-card > button.task-due-date {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .task-card .task-card-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .task-card-controls select {
+    min-width: 0;
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .task-card-controls .icon-btn {
+    grid-column: 1/-1;
+    min-height: 44px;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    gap: 8px;
+  }
+  .task-edit-label {
+    display: inline;
+    font-size: 14px;
+  }
+  .task-filter-panel input,
+  .task-filter-panel select,
+  .modal input:not([type='checkbox']):not([type='radio']),
+  .modal select {
+    font-size: 16px;
+    min-height: 44px;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .task-filter-panel label,
+  .modal label {
+    font-size: 14px;
+  }
+  .task-filter-panel button,
+  .task-sharing-panel button,
+  .modal .form-actions button,
+  .task-column > .list-footer {
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .modal .checkbox {
+    min-height: 44px;
+  }
+  .modal {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    overscroll-behavior: contain;
+    scroll-padding-block: 16px;
+  }
+  .modal .close {
+    min-width: 44px;
+    min-height: 44px;
+    top: 8px;
+    right: 8px;
+  }
+  .modal h2 {
+    padding-right: 32px;
+  }
+}
+@media (max-width: 650px) {
+  .modal-backdrop {
+    padding: 12px;
+  }
+  .modal {
+    padding: 24px 16px;
+  }
+}

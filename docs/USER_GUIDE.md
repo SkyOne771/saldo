@@ -81,3 +81,7 @@ Use Set due date on an undated card, or edit any task and set the optional date.
 Cards distinguish Overdue, Due today and Upcoming with the status palette. A dated task in Done shows Completed instead of Overdue. Date filters combine with priority, search and sharing filters. Next 7 days includes today and the following six days, excluding completed tasks. Sort by Due date to show the earliest dates first and undated tasks last. Clear filters restores all tasks.
 
 Task due status uses the device’s current local calendar date, independently of the selected finance month. It refreshes when the app is refocused and within a minute of a date change. Due dates do not schedule notifications.
+
+### Tasks on phones and tablets
+
+On narrow screens and touch devices, task controls use larger tap targets and form text. Status and priority controls sit side by side with a full-width Edit task button. Tap Set due date or Edit task to open the scrollable editor; the date is optional and can be cleared. On short screens, scroll within the dialog to reach Save. The drag handle and the three fixed status targets support touch-pointer moves, with safe-area spacing at the top of the screen. Scroll the page outside the handle, and use the status dropdown whenever dragging is inconvenient.

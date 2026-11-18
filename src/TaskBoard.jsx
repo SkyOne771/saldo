@@ -52,7 +52,7 @@ export default function TaskBoard({
     document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-task-drop-status]')?.dataset
       .taskDropStatus;
   const pointerDown = (e, id) => {
-    if (busy || e.pointerType === 'mouse' || e.button !== 0) return;
+    if (busy || touch.current || e.pointerType === 'mouse' || e.button !== 0) return;
     touch.current = { id, pointerId: e.pointerId, x: e.clientX, y: e.clientY, started: false };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
@@ -151,6 +151,7 @@ export default function TaskBoard({
                   <span
                     className="task-drag-handle"
                     title="Drag to another status column"
+                    onContextMenu={(e) => e.preventDefault()}
                     onPointerDown={(e) => pointerDown(e, task.id)}
                     onPointerMove={pointerMove}
                     onPointerUp={pointerUp}
@@ -193,6 +194,7 @@ export default function TaskBoard({
                   )}
 
                   <div
+                    className="task-card-controls"
                     draggable={false}
                     onDragStart={(e) => {
                       e.preventDefault();
@@ -238,6 +240,7 @@ export default function TaskBoard({
                       onClick={() => openAdd('task', task)}
                     >
                       <Pencil size={14} />
+                      <span className="task-edit-label">Edit task</span>
                     </button>
                   </div>
                 </div>

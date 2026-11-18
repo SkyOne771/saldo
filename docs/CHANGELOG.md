@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-18 — Mobile task usability
+
+- Enlarged drag, date, edit, filter and form controls for phones/tablets and coarse-pointer devices. Task status/priority controls use a two-column layout with a labelled Edit task button.
+- Improved short-screen editor scrolling and date-field sizing, added safe-area spacing for touch drag targets, and blocked competing touch gestures on drag handles.
+
 ## 2026-11-18 — Task due dates
 
 - Tasks support optional validated calendar dates with coloured overdue/today/upcoming labels and a completed state.
