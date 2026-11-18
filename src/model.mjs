@@ -471,6 +471,7 @@ export function validState(state) {
           str(t.name) &&
           str(t.category) &&
           owner(t) &&
+          (t.dueDate === undefined || t.dueDate === '' || validTaskDate(t.dueDate)) &&
           (t.priority === undefined ||
             (Number.isInteger(t.priority) && t.priority >= 1 && t.priority <= 4)) &&
           (t.sharedWith === undefined || validTaskRecipients(state, t.sharedWith, t.owner)) &&
@@ -852,23 +853,45 @@ export const taskPriority = (task) =>
   Number.isInteger(task.priority) && task.priority >= 1 && task.priority <= 4 ? task.priority : 3;
 export function filterTasks(
   tasks,
-  { search = '', priority = 'All', visibility = 'All', sort = 'Priority' } = {},
+  {
+    search = '',
+    priority = 'All',
+    visibility = 'All',
+    sort = 'Priority',
+    due = 'All',
+    today = taskDateKey(),
+  } = {},
 ) {
   const query = search.trim().toLocaleLowerCase();
+  const end = new Date(today + 'T12:00:00Z');
+  end.setUTCDate(end.getUTCDate() + 7);
+  const nextWeek = end.toISOString().slice(0, 10);
   return tasks
     .filter(
       (task) =>
         (!query || `${task.name} ${task.category}`.toLocaleLowerCase().includes(query)) &&
         (priority === 'All' || taskPriority(task) === Number(priority)) &&
         (visibility === 'All' ||
-          (visibility === 'Shared' ? !!task.sharedWith?.length : !task.sharedWith?.length)),
+          (visibility === 'Shared' ? !!task.sharedWith?.length : !task.sharedWith?.length)) &&
+        (due === 'All' ||
+          (due === 'Next 7 days'
+            ? task.status !== 'Done' && task.dueDate >= today && task.dueDate < nextWeek
+            : taskDueStatus(task, today) === due)),
     )
     .sort((a, b) =>
-      sort === 'Name'
-        ? a.name.localeCompare(b.name)
-        : sort === 'Priority'
-          ? taskPriority(a) - taskPriority(b)
-          : 0,
+      sort === 'Due date'
+        ? (a.dueDate && b.dueDate
+            ? a.dueDate.localeCompare(b.dueDate)
+            : a.dueDate
+              ? -1
+              : b.dueDate
+                ? 1
+                : 0) || taskPriority(a) - taskPriority(b)
+        : sort === 'Name'
+          ? a.name.localeCompare(b.name)
+          : sort === 'Priority'
+            ? taskPriority(a) - taskPriority(b)
+            : 0,
     );
 }
 
@@ -880,4 +903,23 @@ export function moveTask(state, id, status, profile) {
   if (task.status === status) return false;
   task.status = status;
   return true;
+}
+
+export function validTaskDate(value) {
+  if (
+    typeof value !== 'string' ||
+    !/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(value) ||
+    value.startsWith('0000-')
+  )
+    return false;
+  const date = new Date(value + 'T12:00:00Z');
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+export function taskDateKey(date = new Date()) {
+  return `${monthKey(date)}-${String(date.getDate()).padStart(2, '0')}`;
+}
+export function taskDueStatus(task, today = taskDateKey()) {
+  if (!task.dueDate) return 'No due date';
+  if (task.status === 'Done') return 'Completed';
+  return task.dueDate < today ? 'Overdue' : task.dueDate === today ? 'Due today' : 'Upcoming';
 }

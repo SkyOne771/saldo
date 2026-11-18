@@ -75,6 +75,7 @@ import {
   taskPriorities,
   taskPriority,
   filterTasks,
+  taskDateKey,
 } from './model.mjs';
 import './style.css';
 const money = (n, dec) =>
@@ -142,14 +143,25 @@ function App() {
     [conflict, setConflict] = useState(null),
     [recoveryCode, setRecoveryCode] = useState(''),
     [shareConfirm, setShareConfirm] = useState(false),
+    [taskToday, setTaskToday] = useState(taskDateKey),
     [taskFilters, setTaskFilters] = useState({
       search: '',
       priority: 'All',
       visibility: 'All',
       sort: 'Priority',
+      due: 'All',
     }),
     [narrow, setNarrow] = useState(() => window.matchMedia('(max-width:650px)').matches);
   const saving = useRef(false);
+  useEffect(() => {
+    const update = () => setTaskToday(taskDateKey());
+    const timer = setInterval(update, 60000);
+    window.addEventListener('focus', update);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', update);
+    };
+  }, []);
   useEffect(() => setShareConfirm(false), [profile]);
   useEffect(() => {
     const expired = () => {
@@ -471,7 +483,7 @@ function App() {
       .map((b) => billForMonth(state, b, month))
       .filter((b) => visibleBill(state, b, pid)),
     tasks = state.tasks.filter((t) => visibleTask(t, pid)),
-    filteredTasks = filterTasks(tasks, taskFilters),
+    filteredTasks = filterTasks(tasks, { ...taskFilters, today: taskToday }),
     paid = bills.filter((b) => b.paid[month]),
     shared = bills.filter((b) => b.shared),
     sharedTotal = shared.reduce(
@@ -1453,6 +1465,26 @@ function App() {
                   </select>
                 </label>
                 <label>
+                  Due date
+                  <select
+                    aria-label="Filter tasks by due date"
+                    value={taskFilters.due}
+                    onChange={(e) => setTaskFilters({ ...taskFilters, due: e.target.value })}
+                  >
+                    {[
+                      'All',
+                      'Overdue',
+                      'Due today',
+                      'Next 7 days',
+                      'Upcoming',
+                      'No due date',
+                      'Completed',
+                    ].map((d) => (
+                      <option key={d}>{d}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
                   Sort
                   <select
                     aria-label="Sort tasks"
@@ -1461,6 +1493,7 @@ function App() {
                   >
                     <option value="Priority">Priority · P1 first</option>
                     <option value="Name">Name</option>
+                    <option value="Due date">Due date · earliest first</option>
                     <option value="Original">Original order</option>
                   </select>
                 </label>
@@ -1475,6 +1508,7 @@ function App() {
                       priority: 'All',
                       visibility: 'All',
                       sort: 'Priority',
+                      due: 'All',
                     })
                   }
                 >
@@ -1483,6 +1517,7 @@ function App() {
               </section>
               <TaskBoard
                 key={pid}
+                today={taskToday}
                 tasks={filteredTasks}
                 allTasks={tasks}
                 profile={pid}
@@ -1868,6 +1903,7 @@ function App() {
                       record.owner = r?.owner || pid;
                       record.sharedWith = data.sharedWith || [];
                       record.priority = +data.priority;
+                      record.dueDate = data.dueDate || undefined;
                     }
                     if (type === 'profile') {
                       record.income = r?.income ?? +data.income;
@@ -2296,6 +2332,12 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
             ))}
         </fieldset>
       )}
+      {type === 'task' &&
+        field('dueDate', 'Due date (optional)', 'date', '', {
+          required: false,
+          min: '0001-01-01',
+          max: '9999-12-31',
+        })}
       {type === 'task' && (
         <label>
           Priority

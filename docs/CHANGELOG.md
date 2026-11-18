@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-18 — Task due dates
+
+- Tasks support optional validated calendar dates with coloured overdue/today/upcoming labels and a completed state.
+- Added due-date filters and sorting; dates remain shared and survive drag moves. Existing tasks remain undated until edited.
+
 ## 2026-11-18 — Task drag and drop
 
 - Task cards can be dragged between status columns, including empty columns, with destination highlighting and cancellation.
