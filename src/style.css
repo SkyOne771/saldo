@@ -3653,3 +3653,11 @@ nav em {
   border-color: var(--accent-muted);
   background: var(--accent-soft);
 }
+
+.task-card > .task-due-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  font-size: 11px;
+}

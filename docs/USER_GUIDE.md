@@ -73,3 +73,11 @@ Existing bills are included by default as a conservative starting point. Edit a 
 Drag a task card into To do, In progress or Done to change its status. The destination column highlights and accepts drops even when empty. A successful move saves through the normal revision-protected update and appears in other shared profiles. Dropping into the same column or pressing Escape leaves the task unchanged. Cards retain their priority, sharing and other details; ordering still follows the selected sort.
 
 On touch screens, drag the card’s Drag handle onto one of the three status targets that appears at the top of the screen. Release elsewhere to cancel. Normal scrolling remains available outside the handle. The status dropdown remains available for keyboard use and as an alternative to dragging. Moving is disabled while a save is in progress; save failures and concurrent edits use the existing error and draft-recovery flow.
+
+### Task due dates
+
+Use Set due date on an undated card, or edit any task and set the optional date. Clear the date field to remove it. Existing tasks remain undated until you choose dates; shared profiles edit the same date, and dragging between statuses preserves it.
+
+Cards distinguish Overdue, Due today and Upcoming with the status palette. A dated task in Done shows Completed instead of Overdue. Date filters combine with priority, search and sharing filters. Next 7 days includes today and the following six days, excluding completed tasks. Sort by Due date to show the earliest dates first and undated tasks last. Clear filters restores all tasks.
+
+Task due status uses the device’s current local calendar date, independently of the selected finance month. It refreshes when the app is refocused and within a minute of a date change. Due dates do not schedule notifications.

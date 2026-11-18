@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GripVertical, Pencil, Plus } from 'lucide-react';
-import { moveTask, statusClass, taskPriorities, taskPriority } from './model.mjs';
+import { moveTask, statusClass, taskPriorities, taskPriority, taskDueStatus } from './model.mjs';
 const statuses = ['To do', 'In progress', 'Done'];
 const dragType = 'application/x-saldo-task';
 export default function TaskBoard({
   tasks,
+  today,
   allTasks,
   profile,
   busy,
@@ -168,6 +169,29 @@ export default function TaskBoard({
                     P{taskPriority(task)} · {taskPriorities[taskPriority(task) - 1].label}
                   </span>
                   <h3>{task.name}</h3>
+                  {task.dueDate ? (
+                    <span
+                      className={`badge task-due-date ${taskDueStatus(task, today) === 'Completed' ? 'paid' : statusClass(taskDueStatus(task, today))}`}
+                    >
+                      {taskDueStatus(task, today)} ·{' '}
+                      <time dateTime={task.dueDate}>
+                        {new Date(task.dueDate + 'T12:00:00').toLocaleDateString('en', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </time>
+                    </span>
+                  ) : (
+                    <button
+                      className="text-btn task-due-date"
+                      disabled={busy}
+                      onClick={() => openAdd('task', task)}
+                    >
+                      Set due date
+                    </button>
+                  )}
+
                   <div
                     draggable={false}
                     onDragStart={(e) => {
