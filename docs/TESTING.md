@@ -11,7 +11,9 @@ npm run check
 ## Automated coverage
 
 - Planned budgets, annual provisioning, per-profile/per-month spending and new-account isolation.
-- Equal splits, odd-cent reconciliation, payer history, list visibility and imports without duplicate records.
+- Equal splits, odd-cent reconciliation, payer history, individual half-payment confirmations, list visibility and imports without duplicate records.
+- Shared tasks, priority/date filters, real-calendar validation and status moves that preserve task details.
+- Essential-bill minimum budgets with annual provisioning and paid-history preservation.
 - Effective-month income and bill terms, legacy paid snapshots, intentional historical corrections and month-end/leap-year dates.
 - Principal repayment creation, correction, deletion and invalid-balance rejection.
 - Three-way merge behavior for independent edits, conflicting values and deleted records.
@@ -32,6 +34,8 @@ Browser checks are performed separately from `npm test`; CI does not currently l
 5. Trigger a stale revision in a second tab; recover the draft without losing unrelated changes.
 6. Exercise password recovery and session revocation using only disposable accounts.
 7. Switch themes and test keyboard navigation and a narrow mobile viewport.
-8. For screenshots, use fictional local demo data and crop out browser/account information.
+8. Exercise task dates, priorities and status moves at phone widths (320–430px), a landscape viewport and a tablet viewport. Check 44px touch targets, 16px form fields, no horizontal overflow, scrollable editors and reachable Save buttons.
+9. Test touch-handle moves and cancellation, including a second pointer, then confirm dates and sharing survive. Viewport resizing and synthetic touch-pointer checks are browser emulation, not a physical-device Safari/Android test.
+10. For screenshots, use fictional local demo data and crop out browser/account information.
 
 Historical functional, security and accessibility browser reviews informed the regression suite. Their private operational logs are not bundled in the public repository. Rerun affected flows when behavior changes rather than treating old screenshots as proof for new code.
