@@ -3584,3 +3584,72 @@ nav em {
   color: var(--text-muted);
   font-size: 11px;
 }
+
+.task-drag-help {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+.task-column {
+  min-height: 180px;
+}
+.task-column.task-drop-target {
+  outline: 2px solid var(--accent-muted);
+  outline-offset: 3px;
+  background: var(--accent-soft);
+}
+.task-card[draggable='true'] {
+  cursor: grab;
+}
+.task-card.task-dragging {
+  opacity: 0.45;
+}
+.task-card > .task-drag-handle {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.task-card.task-dragging .task-drag-handle {
+  cursor: grabbing;
+}
+.task-empty-drop {
+  min-height: 70px;
+}
+.task-touch-targets {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 4px 20px #0003;
+}
+.task-touch-targets span {
+  padding: 18px 4px;
+  text-align: center;
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+}
+.task-touch-targets .active {
+  border-color: var(--accent-muted);
+  background: var(--accent-soft);
+}

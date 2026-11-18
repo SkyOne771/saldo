@@ -43,6 +43,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import DebtTracker from './DebtTracker.jsx';
+import TaskBoard from './TaskBoard.jsx';
 import ConflictRecovery from './ConflictRecovery.jsx';
 import RecoveryForm from './RecoveryForm.jsx';
 import { mergeFinance } from './merge.mjs';
@@ -1480,96 +1481,16 @@ function App() {
                   Clear filters
                 </button>
               </section>
-              <div className="kanban">
-                {['To do', 'In progress', 'Done'].map((status) => (
-                  <section className="panel" key={status}>
-                    <PanelTitle
-                      title={status}
-                      right={
-                        <span className="badge neutral">
-                          {filteredTasks.filter((t) => t.status === status).length}
-                        </span>
-                      }
-                    />
-                    {filteredTasks
-                      .filter((t) => t.status === status)
-                      .map((task) => (
-                        <div
-                          className={
-                            'task-card task-' + task.status.toLowerCase().replace(' ', '-')
-                          }
-                          key={task.id}
-                        >
-                          <span className={'badge ' + statusClass(task.status)}>
-                            {task.category} · {task.status}
-                            {task.sharedWith?.length ? ' · Shared' : ''}
-                          </span>
-                          <span className={`badge task-priority priority-${taskPriority(task)}`}>
-                            P{taskPriority(task)} · {taskPriorities[taskPriority(task) - 1].label}
-                          </span>
-                          <h3>{task.name}</h3>
-                          <div>
-                            <select
-                              aria-label={'Status for ' + task.name}
-                              value={task.status}
-                              onChange={(e) =>
-                                mutate((s) => {
-                                  s.tasks.find((t) => t.id === task.id).status = e.target.value;
-                                })
-                              }
-                            >
-                              {['To do', 'In progress', 'Done'].map((s) => (
-                                <option key={s}>{s}</option>
-                              ))}
-                            </select>
-                            <select
-                              aria-label={'Priority for ' + task.name}
-                              className={`task-priority-select priority-${taskPriority(task)}`}
-                              value={taskPriority(task)}
-                              disabled={busy}
-                              onChange={(e) =>
-                                mutate((s) => {
-                                  s.tasks.find((t) => t.id === task.id).priority = +e.target.value;
-                                })
-                              }
-                            >
-                              {taskPriorities.map((p) => (
-                                <option key={p.value} value={p.value}>
-                                  P{p.value} · {p.label}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              className="icon-btn"
-                              title="Edit task"
-                              onClick={() => openAdd('task', task)}
-                            >
-                              <Pencil size={14} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    {!filteredTasks.some((t) => t.status === status) && (
-                      <p className="empty">
-                        {tasks.some((t) => t.status === status)
-                          ? 'No tasks match these filters.'
-                          : 'No tasks in this status yet.'}
-                      </p>
-                    )}
-                    <button
-                      className="list-footer"
-                      onClick={() =>
-                        openAdd('task', {
-                          status,
-                          priority: taskFilters.priority === 'All' ? 3 : +taskFilters.priority,
-                        })
-                      }
-                    >
-                      <Plus size={15} /> Add a task
-                    </button>
-                  </section>
-                ))}
-              </div>
+              <TaskBoard
+                key={pid}
+                tasks={filteredTasks}
+                allTasks={tasks}
+                profile={pid}
+                busy={busy}
+                mutate={mutate}
+                openAdd={openAdd}
+                newPriority={taskFilters.priority === 'All' ? 3 : +taskFilters.priority}
+              />
             </>
           )}
           {page === 'Settings' && (

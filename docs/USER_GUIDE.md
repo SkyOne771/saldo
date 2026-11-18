@@ -67,3 +67,9 @@ For a bill already paid to the provider, the non-payer’s confirmation records 
 Overview shows Minimum needed for the selected month: your share of essential recurring bills plus active monthly debt instalments. Shared bills count at your 50% share, personal bills count fully, and annual bills are spread over 12 months. One-off spending is excluded. New accounts start at zero.
 
 Existing bills are included by default as a conservative starting point. Edit a bill and uncheck Essential to exclude optional costs from this figure; it remains in Bills & living and the normal budget. Essential labels appear on recurring/shared bill rows. The flag belongs to the shared bill, so changing it applies to both profiles from the selected month forward, while paid history keeps its saved terms. This is a planning total based on your records, not an estimate of food or other costs you have not entered.
+
+### Dragging task cards
+
+Drag a task card into To do, In progress or Done to change its status. The destination column highlights and accepts drops even when empty. A successful move saves through the normal revision-protected update and appears in other shared profiles. Dropping into the same column or pressing Escape leaves the task unchanged. Cards retain their priority, sharing and other details; ordering still follows the selected sort.
+
+On touch screens, drag the card’s Drag handle onto one of the three status targets that appears at the top of the screen. Release elsewhere to cancel. Normal scrolling remains available outside the handle. The status dropdown remains available for keyboard use and as an alternative to dragging. Moving is disabled while a save is in progress; save failures and concurrent edits use the existing error and draft-recovery flow.
