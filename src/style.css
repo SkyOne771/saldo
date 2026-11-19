@@ -3767,3 +3767,67 @@ nav em {
     padding: 24px 16px;
   }
 }
+
+.shared-carryover {
+  margin-bottom: 22px;
+}
+.carryover-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.carryover-totals span,
+.carryover-description span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.carryover-totals b {
+  display: block;
+  font-size: 16px;
+  margin-top: 6px;
+}
+.shared-carryover p {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 16px 0;
+}
+.shared-carryover summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--text);
+  font-size: 14px;
+}
+.carryover-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+.carryover-description {
+  flex: 1;
+  min-width: 150px;
+  overflow-wrap: anywhere;
+}
+.carryover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+@media (max-width: 650px) {
+  .carryover-totals {
+    grid-template-columns: 1fr;
+  }
+  .carryover-actions {
+    width: 100%;
+  }
+  .carryover-actions button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}

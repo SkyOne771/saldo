@@ -336,24 +336,49 @@ export function setSharePaid(state, id, month, profile, paid) {
     [month]: { ...bill.sharePayments?.[month], [profile]: paid },
   };
 }
+function sharedBillBalance(state, bill, profile, month) {
+  if (!bill.shared || !visibleBill(state, bill, profile) || !bill.paid?.[month]) return 0;
+  const payer = billPayer(bill, month, state),
+    partner = billParticipants(state, bill).find((id) => id !== payer);
+  if (sharePaid(bill, month, partner)) return 0;
+  return roundMoney(
+    payer === profile
+      ? -(bill.amount - billShare(state, bill, profile))
+      : billShare(state, bill, profile),
+  );
+}
+// Month-only calculation is retained for reports and historical regression checks.
 export function sharedBalance(state, profile, month) {
   return roundMoney(
-    state.bills
-      .map((b) => billForMonth(state, b, month))
-      .filter((b) => b.shared && visibleBill(state, b, profile) && b.paid?.[month])
-      .reduce((sum, b) => {
-        const payer = billPayer(b, month, state),
-          partner = billParticipants(state, b).find((id) => id !== payer);
-        // The non-payer confirms their reimbursement; never charge both sides twice.
-        if (sharePaid(b, month, partner)) return sum;
-        return (
-          sum +
-          (payer === profile
-            ? -(b.amount - billShare(state, b, profile))
-            : billShare(state, b, profile))
-        );
-      }, 0),
+    state.bills.reduce(
+      (sum, root) =>
+        sum + sharedBillBalance(state, billForMonth(state, root, month), profile, month),
+      0,
+    ),
   );
+}
+export function sharedBalanceSummary(state, profile, month) {
+  const entries = [];
+  for (const root of state.bills) {
+    for (const [period, paid] of Object.entries(root.paid || {})) {
+      if (!paid || period > month) continue;
+      const bill = billForMonth(state, root, period),
+        amount = sharedBillBalance(state, bill, profile, period);
+      if (!amount) continue;
+      const payer = billPayer(bill, period, state),
+        counterpart = billParticipants(state, bill).find((id) => id !== profile);
+      entries.push({ billId: root.id, month: period, name: bill.name, amount, payer, counterpart });
+    }
+  }
+  entries.sort((a, b) => a.month.localeCompare(b.month) || a.name.localeCompare(b.name));
+  const sum = (list) =>
+    list.reduce((cents, entry) => cents + Math.round(entry.amount * 100), 0) / 100;
+  return {
+    current: sum(entries.filter((entry) => entry.month === month)),
+    carried: sum(entries.filter((entry) => entry.month < month)),
+    total: sum(entries),
+    entries,
+  };
 }
 
 export function validState(state) {

@@ -85,3 +85,11 @@ Task due status uses the device’s current local calendar date, independently o
 ### Tasks on phones and tablets
 
 On narrow screens and touch devices, task controls use larger tap targets and form text. Status and priority controls sit side by side with a full-width Edit task button. Tap Set due date or Edit task to open the scrollable editor; the date is optional and can be cleared. On short screens, scroll within the dialog to reach Save. The drag handle and the three fixed status targets support touch-pointer moves, with safe-area spacing at the top of the screen. Scroll the page outside the handle, and use the status dropdown whenever dragging is inconvenient.
+
+### Shared balances carried forward
+
+The Shared expenses balance includes unpaid reimbursements from the selected bill month and every earlier bill month. It shows amounts you owe and amounts owed to you; future bill months are excluded. A monthly breakdown separates the selected month from carryover. The calculation reads the original records, so it never creates a duplicate bill or adds an earlier cumulative total again, and your monthly budget is unchanged.
+
+Expand Review earlier unpaid bill shares to see their original months, bill names and partners. Confirm reimbursed only after you have actually repaid that share: this records your confirmation against the original month and removes it from later totals. Review month opens that period so a confirmation can also be undone. People owed money can review the original record but cannot confirm another profile’s half from their own view.
+
+Saved historical amounts, partners and payers are used even if the bill changes later. Hidden bills still count. Only bills recorded paid to the provider create a reimbursement balance, and a partner’s already-confirmed half is excluded. Earlier provider-paid bills without a reimbursement confirmation remain outstanding; the app does not guess whether an unrecorded repayment happened. Opposing amounts are netted in the total, with individual unpaid entries left intact.
