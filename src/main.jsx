@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import DebtTracker from './DebtTracker.jsx';
 import TaskBoard from './TaskBoard.jsx';
+import SharedCarryover from './SharedCarryover.jsx';
 import ConflictRecovery from './ConflictRecovery.jsx';
 import RecoveryForm from './RecoveryForm.jsx';
 import { mergeFinance } from './merge.mjs';
@@ -63,7 +64,7 @@ import {
   billParticipants,
   billStatus,
   statusClass,
-  sharedBalance,
+  sharedBalanceSummary,
   billForMonth,
   billDueDate,
   setBillPaid,
@@ -478,6 +479,7 @@ function App() {
   const person = state.profiles.find((p) => p.id === profile) || state.profiles[0],
     pid = person.id,
     t = totals(state, pid, month),
+    sharedSummary = sharedBalanceSummary(state, pid, month),
     debts = state.debts.filter((d) => d.owner === pid),
     bills = state.bills
       .map((b) => billForMonth(state, b, month))
@@ -1199,18 +1201,29 @@ function App() {
                 />
                 <Stat
                   title={
-                    sharedBalance(state, pid, month) < 0
+                    sharedSummary.total < 0
                       ? 'You are owed'
-                      : sharedBalance(state, pid, month) > 0
+                      : sharedSummary.total > 0
                         ? 'You owe'
-                        : 'All settled'
+                        : sharedSummary.entries.length
+                          ? 'Net balanced'
+                          : 'All settled'
                   }
-                  value={Math.abs(sharedBalance(state, pid, month))}
+                  value={Math.abs(sharedSummary.total)}
                   icon={ArrowLeftRight}
                   color="orange"
-                  note="Paid bills minus confirmed reimbursements this month"
+                  note="Selected month plus earlier unpaid reimbursements"
                 />
               </div>
+              <SharedCarryover
+                summary={sharedSummary}
+                state={state}
+                profile={pid}
+                month={month}
+                busy={busy}
+                mutate={mutate}
+                onReview={(period) => setMonth(period)}
+              />
               <BillsPanel
                 sharedPage
                 state={state}

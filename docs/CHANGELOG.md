@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-19 — Shared balance carryover
+
+- Shared balances include earlier unpaid reimbursements as well as the selected month, without duplicating bills or changing monthly budgets.
+- Added a carryover breakdown and original-month review/confirmation actions. Historical bill terms and reimbursement confirmations determine outstanding amounts.
+
 ## 2026-11-18 — Mobile task usability
 
 - Enlarged drag, date, edit, filter and form controls for phones/tablets and coarse-pointer devices. Task status/priority controls use a two-column layout with a labelled Edit task button.
