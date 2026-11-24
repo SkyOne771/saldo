@@ -772,17 +772,19 @@ function billTerms(state, b, month) {
       .map((k) => [k, k === 'partnerId' && b.shared ? billParticipants(state, b)[1] : b[k]]),
   );
 }
-export function billForMonth(state, b, month) {
+function effectiveBillTerms(b, month) {
   const key = Object.keys(b.versions || {})
-      .filter((m) => m <= month)
-      .sort()
-      .at(-1),
-    terms = key ? b.versions[key] : b;
+    .filter((m) => m <= month)
+    .sort()
+    .at(-1);
+  return key ? b.versions[key] : b;
+}
+export function billForMonth(state, b, month) {
   const snapshot = b.paid?.[month] && b.settlements?.[month];
   return {
     ...b,
     ...Object.fromEntries(termKeys.map((k) => [k, undefined])),
-    ...billTerms(state, snapshot || terms, month),
+    ...billTerms(state, snapshot || effectiveBillTerms(b, month), month),
   };
 }
 export function freezePaidBill(state, b) {
@@ -818,6 +820,14 @@ export function editBillForMonth(state, id, data, month) {
       ...b.settlements,
       [month]: { ...terms, payer: billPayer({ ...b, ...terms }, month, state) },
     };
+}
+export function setBillEssential(state, id, month, essential) {
+  const bill = state.bills.find((item) => item.id === id);
+  if (!bill) throw Error('Bill not found.');
+  freezePaidBill(state, bill);
+  const terms = billTerms(state, effectiveBillTerms(bill, month), month);
+  bill.versions = { ...bill.versions, [month]: { ...terms, essential } };
+  if (bill.paid[month]) bill.settlements[month].essential = essential;
 }
 export function setBillPaid(state, id, month, paid, profile) {
   const b = state.bills.find((b) => b.id === id);
