@@ -29,6 +29,7 @@ import {
   importBillsToView,
   setBillPaid,
   billDueDate,
+  setBillEssential,
   sharePaid,
   setSharePaid,
 } from './model.mjs';
@@ -354,11 +355,22 @@ export default function BillsPanel({
                   : ''}{' '}
                 · due {+billDueDate(b, month, profile).slice(-2)}
               </span>
-              <span className="essential-label">
-                {b.essential === false
-                  ? 'Optional · excluded from minimum'
-                  : 'Essential · included in minimum'}
-              </span>
+              <label className="essential-toggle">
+                <input
+                  type="checkbox"
+                  aria-label={`Essential for minimum budget: ${b.name}`}
+                  checked={b.essential !== false}
+                  disabled={busy}
+                  onChange={(event) => {
+                    const essential = event.target.checked;
+                    mutate(
+                      (next) => setBillEssential(next, b.id, month, essential),
+                      essential ? 'Marked as essential' : 'Marked as optional',
+                    );
+                  }}
+                />
+                Essential
+              </label>
               <span className="split-label">
                 {b.shared
                   ? `50/50 with ${state.profiles.find((p) => p.id === partner)?.name || 'partner'}`

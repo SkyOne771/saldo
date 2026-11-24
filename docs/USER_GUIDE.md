@@ -66,7 +66,7 @@ For a bill already paid to the provider, the non-payer’s confirmation records 
 
 Overview shows Minimum needed for the selected month: your share of essential recurring bills plus active monthly debt instalments. Shared bills count at your 50% share, personal bills count fully, and annual bills are spread over 12 months. One-off spending is excluded. New accounts start at zero.
 
-Existing bills are included by default as a conservative starting point. Edit a bill and uncheck Essential to exclude optional costs from this figure; it remains in Bills & living and the normal budget. Essential labels appear on recurring/shared bill rows. The flag belongs to the shared bill, so changing it applies to both profiles from the selected month forward, while paid history keeps its saved terms. This is a planning total based on your records, not an estimate of food or other costs you have not entered.
+Existing bills are included by default as a conservative starting point. Use **Choose essential bills** on Overview to open Recurring bills, then check or uncheck **Essential** directly on each bill. The checkbox is also available in Shared expenses. Optional bills still count in Bills & living and the normal budget. The flag belongs to the shared bill, so changing it applies to both profiles from the selected month until the next saved bill version. Other paid months retain their saved terms. This is a planning total based on your records, not an estimate of food or other costs you have not entered.
 
 ### Dragging task cards
 
