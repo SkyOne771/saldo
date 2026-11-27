@@ -18,6 +18,10 @@ Saldo brings recurring bills, 50/50 shared expenses, debt repayments, cash flow 
 - **Profiles and tasks:** separate budget views within one account, tasks with statuses, six colour themes, and light/dark/system appearance.
 - **Account controls:** invitation-based registration, private accounts, recovery codes, session revocation, and JSON export/restore. New accounts start empty.
 
+## Install on a phone
+
+Saldo can be installed from your HTTPS deployment in Chrome on Android or Safari on iPhone. See the [phone installation guide](docs/USER_GUIDE.md#install-on-a-phone).
+
 ## Try it locally
 
 Install **Node.js 22.13 or newer** and npm, then:

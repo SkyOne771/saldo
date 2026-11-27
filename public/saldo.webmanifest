@@ -1,0 +1,15 @@
+{
+  "id": "./",
+  "name": "Saldo",
+  "short_name": "Saldo",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f8fa",
+  "theme_color": "#526476",
+  "icons": [
+    { "src": "saldo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "saldo-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
