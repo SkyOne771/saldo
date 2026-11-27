@@ -99,3 +99,9 @@ The Shared expenses balance includes unpaid reimbursements from the selected bil
 Expand Review earlier unpaid bill shares to see their original months, bill names and partners. Confirm reimbursed only after you have actually repaid that share: this records your confirmation against the original month and removes it from later totals. Review month opens that period so a confirmation can also be undone. People owed money can review the original record but cannot confirm another profile’s half from their own view.
 
 Saved historical amounts, partners and payers are used even if the bill changes later. Hidden bills still count. Only bills recorded paid to the provider create a reimbursement balance, and a partner’s already-confirmed half is excluded. Earlier provider-paid bills without a reimbursement confirmation remain outstanding; the app does not guess whether an unrecorded repayment happened. Opposing amounts are netted in the total, with individual unpaid entries left intact.
+
+## Shopping list
+
+Open **Shopping list** to add items, including quantities in the item name. Check an item to move it to **Purchased**, or uncheck it to put it back. Use the pencil to edit, share or delete an item.
+
+Items are the same Shopping tasks you see in To-do list. New items use your profile’s default task sharing, and changes sync across the profiles you share them with.

@@ -19,6 +19,7 @@ This reference is derived from the current source. CI rejects stale output.
 - Shared expenses
 - Debts & goals
 - To-do list
+- Shopping list
 - Settings & profiles
 
 Overview includes the monthly cash-flow breakdown and extra spending.
