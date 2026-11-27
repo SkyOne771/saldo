@@ -104,4 +104,4 @@ Saved historical amounts, partners and payers are used even if the bill changes 
 
 Open **Shopping list** to add items, including quantities in the item name. Check an item to move it to **Purchased**, or uncheck it to put it back. Use the pencil to edit, share or delete an item.
 
-Items are the same Shopping tasks you see in To-do list. New items use your profile’s default task sharing, and changes sync across the profiles you share them with.
+Shopping items are stored separately from To-do tasks. The list starts empty, including for accounts with existing Shopping tasks. New items use your profile’s default sharing recipients, and changes sync across the profiles you share them with.

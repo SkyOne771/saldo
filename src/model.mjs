@@ -6,6 +6,7 @@ export function emptyState(name = 'Personal') {
     payments: [],
     expenses: [],
     tasks: [],
+    shoppingItems: [],
   };
 }
 export const monthKey = (date = new Date()) =>
@@ -396,6 +397,7 @@ export function validState(state) {
     if (
       !obj(state) ||
       !['profiles', 'bills', 'debts', 'tasks', 'payments', 'expenses'].every(list) ||
+      (state.shoppingItems !== undefined && !list('shoppingItems')) ||
       !state.profiles.length ||
       state.profiles.length > 100
     )
@@ -487,6 +489,17 @@ export function validState(state) {
           Number.isFinite(d.rate) &&
           d.rate >= 0 &&
           d.rate <= 100,
+      )
+    )
+      return false;
+    if (
+      !(state.shoppingItems || []).every(
+        (item) =>
+          str(item.name) &&
+          owner(item) &&
+          typeof item.purchased === 'boolean' &&
+          (item.sharedWith === undefined ||
+            validTaskRecipients(state, item.sharedWith, item.owner)),
       )
     )
       return false;
@@ -619,9 +632,11 @@ export function deleteProfile(state, id, target) {
   }
   for (const key of ['debts', 'payments', 'expenses', 'tasks'])
     for (const r of state[key]) if (r.owner === id) r.owner = target;
-  for (const task of state.tasks)
+  for (const task of [...state.tasks, ...(state.shoppingItems || [])]) {
+    if (task.owner === id) task.owner = target;
     if (task.sharedWith)
       task.sharedWith = task.sharedWith.filter((p) => p !== id && p !== task.owner);
+  }
   for (const p of state.profiles)
     if (p.taskSharedWith)
       p.taskSharedWith = p.taskSharedWith.filter(
