@@ -147,15 +147,12 @@ app.use('/api', (req, res, next) => {
   }
   next();
 });
-const smallJson = express.json({ limit: '16kb', strict: true }),
-  largeJson = express.json({ limit: '2mb', strict: true });
-app.use('/api', (req, res, next) =>
-  (req.path.startsWith('/auth/') ||
-    req.path.startsWith('/security/') ||
-    req.path.startsWith('/recovery/')
-    ? smallJson
-    : largeJson)(req, res, next),
-);
+const smallJson = express.json({ limit: '16kb', strict: true, inflate: false }),
+  largeJson = express.json({ limit: '2mb', strict: true, inflate: false });
+app.use('/api', (req, res, next) => {
+  const parser = /^\/(?:auth|security|recovery)\//i.test(req.path) ? smallJson : largeJson;
+  parser(req, res, next);
+});
 function cookieToken(req) {
   const raw = req.headers.cookie?.match(/(?:^|; )saldo=([^;]+)/)?.[1];
   return raw && /^[a-f0-9]{64}$/.test(raw) ? raw : null;
@@ -387,8 +384,8 @@ app.post('/api/recovery/reset', async (req, res) => {
   db.exec('BEGIN IMMEDIATE');
   try {
     const consumed = db
-      .prepare('DELETE FROM recovery_codes WHERE user_id=? AND token=?')
-      .run(user.id, token);
+      .prepare('DELETE FROM recovery_codes WHERE user_id=? AND token=? AND expires>?')
+      .run(user.id, token, Date.now());
     if (!consumed.changes) {
       db.exec('ROLLBACK');
       return res.status(400).json({
@@ -483,11 +480,15 @@ app.post('/api/security/recovery-code', async (req, res) => {
   if (!(await verifyPassword(currentPassword, req.account.password)))
     return res.status(401).json({ error: 'Current password is incorrect.' });
   const recoveryCode = randomBytes(32).toString('hex');
-  db.prepare('INSERT OR REPLACE INTO recovery_codes VALUES(?,?,?)').run(
-    req.account.id,
-    hash(recoveryCode),
-    Date.now() + 365 * 86400000,
-  );
+  const result = db
+    .prepare(
+      'INSERT OR REPLACE INTO recovery_codes SELECT id, ?, ? FROM users WHERE id=? AND password=?',
+    )
+    .run(hash(recoveryCode), Date.now() + 365 * 86400000, req.account.id, req.account.password);
+  if (!result.changes)
+    return res
+      .status(401)
+      .json({ error: 'Credentials changed in another session. Sign in again.' });
   res.json({ recoveryCode });
 });
 app.get('/api/state', (req, res) =>
