@@ -7,6 +7,7 @@ import {
   Users,
   Landmark,
   CheckCheck,
+  ShoppingCart,
   Settings,
   ArrowUpRight,
   ArrowDownRight,
@@ -44,6 +45,7 @@ import {
 } from 'lucide-react';
 import DebtTracker from './DebtTracker.jsx';
 import TaskBoard from './TaskBoard.jsx';
+import ShoppingList from './ShoppingList.jsx';
 import SharedCarryover from './SharedCarryover.jsx';
 import ConflictRecovery from './ConflictRecovery.jsx';
 import RecoveryForm from './RecoveryForm.jsx';
@@ -102,6 +104,7 @@ const nav = [
   ['Shared expenses', Users],
   ['Debts & goals', Landmark],
   ['To-do list', CheckCheck],
+  ['Shopping list', ShoppingCart],
 ];
 let csrfToken = '';
 async function api(path, options) {
@@ -852,45 +855,48 @@ function App() {
                       'Shared expenses': 'Shared life. Fair shares. Everything in one place.',
                       'Debts & goals': 'Every little payment is a step towards freedom.',
                       'To-do list': 'Less on your mind. More getting done.',
+                      'Shopping list': 'Add items and check them off as you shop.',
                       Settings: 'Make this space your own.',
                     }[page]}
               </p>
             </div>
-            <div className="heading-actions">
-              <div className="month-picker">
-                <button onClick={() => changeMonth(-1)} aria-label="Previous month">
-                  <ChevronLeft size={15} />
-                </button>
-                <CalendarDays size={15} />
-                <span>{monthName}</span>
-                <button onClick={() => changeMonth(1)} aria-label="Next month">
-                  <ChevronRight size={15} />
+            {page !== 'Shopping list' && (
+              <div className="heading-actions">
+                <div className="month-picker">
+                  <button onClick={() => changeMonth(-1)} aria-label="Previous month">
+                    <ChevronLeft size={15} />
+                  </button>
+                  <CalendarDays size={15} />
+                  <span>{monthName}</span>
+                  <button onClick={() => changeMonth(1)} aria-label="Next month">
+                    <ChevronRight size={15} />
+                  </button>
+                </div>
+                <button
+                  className="primary"
+                  onClick={() =>
+                    openAdd(
+                      page === 'To-do list'
+                        ? 'task'
+                        : page === 'Recurring bills' || page === 'Shared expenses'
+                          ? 'bill'
+                          : page === 'Debts & goals'
+                            ? 'debt'
+                            : 'expense',
+                    )
+                  }
+                >
+                  <Plus size={17} />
+                  {page === 'To-do list'
+                    ? 'Add task'
+                    : page === 'Recurring bills' || page === 'Shared expenses'
+                      ? 'Add bill'
+                      : page === 'Debts & goals'
+                        ? 'Add debt'
+                        : 'Add expense'}
                 </button>
               </div>
-              <button
-                className="primary"
-                onClick={() =>
-                  openAdd(
-                    page === 'To-do list'
-                      ? 'task'
-                      : page === 'Recurring bills' || page === 'Shared expenses'
-                        ? 'bill'
-                        : page === 'Debts & goals'
-                          ? 'debt'
-                          : 'expense',
-                  )
-                }
-              >
-                <Plus size={17} />
-                {page === 'To-do list'
-                  ? 'Add task'
-                  : page === 'Recurring bills' || page === 'Shared expenses'
-                    ? 'Add bill'
-                    : page === 'Debts & goals'
-                      ? 'Add debt'
-                      : 'Add expense'}
-              </button>
-            </div>
+            )}
           </div>
           {page === 'Overview' && !hasData && (
             <section className="panel welcome-panel">
@@ -1357,6 +1363,16 @@ function App() {
             </>
           )}
 
+          {page === 'Shopping list' && (
+            <ShoppingList
+              key={pid}
+              tasks={tasks}
+              person={person}
+              busy={busy}
+              mutate={mutate}
+              openAdd={openAdd}
+            />
+          )}
           {page === 'To-do list' && (
             <>
               <section className="panel task-sharing-panel">
