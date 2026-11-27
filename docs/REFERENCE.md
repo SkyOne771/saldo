@@ -69,6 +69,7 @@ See [deployment](DEPLOYMENT.md) for defaults and safe configuration.
 - `payments`
 - `expenses`
 - `tasks`
+- `shoppingItems`
 
 Income changes, bill versions and paid snapshots are nested in their profile/bill records. Appearance preferences are account-level; tracker preferences are profile-level.
 

@@ -1366,7 +1366,7 @@ function App() {
           {page === 'Shopping list' && (
             <ShoppingList
               key={pid}
-              tasks={tasks}
+              items={(state.shoppingItems || []).filter((item) => visibleTask(item, pid))}
               person={person}
               busy={busy}
               mutate={mutate}
@@ -1895,6 +1895,7 @@ function App() {
                         bill: 'bills',
                         debt: 'debts',
                         task: 'tasks',
+                        shopping: 'shoppingItems',
                         expense: 'expenses',
                         profile: 'profiles',
                       },
@@ -1928,6 +1929,10 @@ function App() {
                         month: data.month || month,
                         owner: r?.owner || pid,
                       });
+                    if (type === 'shopping') {
+                      record.owner = r.owner || pid;
+                      record.sharedWith = data.sharedWith || [];
+                    }
                     if (type === 'task') {
                       record.owner = r?.owner || pid;
                       record.sharedWith = data.sharedWith || [];
@@ -1954,6 +1959,7 @@ function App() {
                     bill: 'bills',
                     debt: 'debts',
                     task: 'tasks',
+                    shopping: 'shoppingItems',
                     expense: 'expenses',
                   };
                   if (
@@ -2098,6 +2104,7 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
     bill: 'recurring bill',
     debt: 'debt',
     task: 'task',
+    shopping: 'shopping item',
     expense: 'expense',
     income: 'monthly income',
     profile: 'profile',
@@ -2126,7 +2133,7 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
         e.preventDefault();
         const form = new FormData(e.target),
           data = Object.fromEntries(form);
-        if (type === 'task') data.sharedWith = form.getAll('sharedWith');
+        if (type === 'task' || type === 'shopping') data.sharedWith = form.getAll('sharedWith');
         if (type === 'bill') {
           data.dueDays = {};
           for (const key of Object.keys(data))
@@ -2157,11 +2164,13 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
       <p className="modal-sub">
         {type === 'payment'
           ? 'Enter the principal amount that reduces your debt, excluding interest.'
-          : `For ${person.name} · ${month}`}
+          : type === 'shopping'
+            ? `For ${person.name}`
+            : `For ${person.name} · ${month}`}
       </p>
-      {['bill', 'debt', 'task', 'expense', 'profile'].includes(type) &&
+      {['bill', 'debt', 'task', 'shopping', 'expense', 'profile'].includes(type) &&
         field('name', type === 'profile' ? 'Profile name' : 'Name', 'text', '', {
-          maxLength: type === 'task' ? 200 : 100,
+          maxLength: type === 'task' || type === 'shopping' ? 200 : 100,
         })}
       {['expense', 'payment', 'repayment', 'bill'].includes(type) &&
         field(
@@ -2337,13 +2346,10 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
           </select>
         </label>
       )}
-      {type === 'task' && profiles.length > 1 && (
+      {(type === 'task' || type === 'shopping') && profiles.length > 1 && (
         <fieldset className="task-sharing-fields">
-          <legend>Share this task</legend>
-          <p>
-            One task, kept in sync across the selected profiles. Anyone listed can edit or delete
-            it.
-          </p>
+          <legend>{type === 'shopping' ? 'Share this item' : 'Share this task'}</legend>
+          <p>Kept in sync across the selected profiles. Anyone listed can edit or delete it.</p>
           {profiles
             .filter((p) => p.id !== (r.owner || person.id))
             .map((p) => (
@@ -2434,16 +2440,19 @@ function Editor({ modal, person, profiles, debts, month, busy, onSave, onDelete 
         </div>
       )}
       <div className="form-actions">
-        {r.id && ['bill', 'debt', 'task', 'expense', 'repayment', 'profile'].includes(type) && (
-          <button
-            type="button"
-            className="delete-btn"
-            disabled={busy || (type === 'profile' && profiles.length === 1)}
-            onClick={() => setConfirmDelete(true)}
-          >
-            <Trash2 size={15} /> Delete
-          </button>
-        )}
+        {r.id &&
+          ['bill', 'debt', 'task', 'shopping', 'expense', 'repayment', 'profile'].includes(
+            type,
+          ) && (
+            <button
+              type="button"
+              className="delete-btn"
+              disabled={busy || (type === 'profile' && profiles.length === 1)}
+              onClick={() => setConfirmDelete(true)}
+            >
+              <Trash2 size={15} /> Delete
+            </button>
+          )}
         <button className="primary" disabled={busy}>
           {busy ? 'Saving…' : type === 'payment' ? 'Record repayment' : 'Save ' + labels[type]}
           <Check size={16} />

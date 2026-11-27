@@ -36,5 +36,8 @@ export function mergeFinance(base, draft, latest, choice) {
     conflicts.push({ path: path.join(' / '), mine: b, latest: c });
     return choice === 'mine' ? b : c;
   }
-  return { state: merge(base, draft, latest, []), conflicts };
+  const withShopping = (state) => ({ ...state, shoppingItems: state.shoppingItems ?? [] });
+  const hasShopping = [base, draft, latest].some((state) => state.shoppingItems !== undefined);
+  const inputs = hasShopping ? [base, draft, latest].map(withShopping) : [base, draft, latest];
+  return { state: merge(...inputs, []), conflicts };
 }
