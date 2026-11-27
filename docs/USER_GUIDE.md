@@ -1,5 +1,11 @@
 # User guide
 
+## Install on a phone
+
+Open your HTTPS Saldo address on your phone. In Chrome on Android, use the browser menu and select **Install app** or **Add to Home screen**. On iPhone, open the site in Safari, then choose **Share → Add to Home Screen** and enable **Open as Web App** if shown.
+
+Open Saldo from the new icon and sign in with your existing account. It connects to the same server and requires an internet connection.
+
 ## Accounts and profiles
 
 New registered accounts contain one profile, zero income and no financial records. A local demo uses fictional records only. Add a partner profile in Settings to share bills. Switching profiles changes the budget view within the same account; everyone using that login can access those profiles.
